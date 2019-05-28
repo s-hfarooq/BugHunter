@@ -33,7 +33,7 @@ public class Main extends JPanel {
 
 		Ellipse2D e = new Ellipse2D.Double(0, 0, w / 3, h / 3);
 		g2d.setStroke(new BasicStroke(1));
-		g2d.setColor(Color.grey);
+		g2d.setColor(Color.gray);
 
 		for(double deg = 0; deg < 360; deg += 5) {
 			AffineTransform at = AffineTransform.getTranslateInstance(w / 2, h / 2);
