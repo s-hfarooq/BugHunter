@@ -1,100 +1,47 @@
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
-import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-
-public class Display extends JFrame {
+public class Display extends JPanel {
 	
-	private final int SCALE_FACTOR = 1;
-	private final String NAME = "Bug Hunter v0.0.1";
-	private boolean right;
-	private boolean left;
-	private boolean shoot;
-	private Player player;
-	private ArrayList<Character> characters;
+	private Point p1 = new Point(100, 100);
+	private boolean drawing;
 	
-	public static void main(String[] args) {
-		
-		Display display = new Display();
-		display.runGame();
-		
-		// Centers the thing on the screen
-//		EventQueue.invokeLater(() -> {
-//			Display ex = new Display();
-//			ex.setVisible(true);
-//		});
-
-	}
-	
-	// Sets up window and defines its characteristics
 	public Display() {
-		// Sets up class variables used to detect key presses
-		right = false;
-		left = false;
-		shoot = false;
-		
-		// Basic window characteristics
-		JFrame window = new JFrame(NAME);
-		JPanel panelDisplayed = (JPanel) window.getContentPane();
-		Dimension size = new Dimension(400 * SCALE_FACTOR, 300 * SCALE_FACTOR);
-		panelDisplayed.setPreferredSize(size);
-		
-		// Sets boundaries on the window
-		setBounds(0, 0, (int) size.getWidth(), (int) size.getHeight());
-		panelDisplayed.add(this);
-		
-		window.pack();
-		window.setVisible(true);
-
-		// Creates a key listener to detect key presses on window
-		addKeyListener(new KeyHandler(this));
-		requestFocus();
-		
-		initUI();
+		this.setPreferredSize(new Dimension(640, 480));
 	}
 	
-	// Adds elements to GUI
-	private void initUI() {
-		characters = new ArrayList<Character>();
-		player = new Player(0);
-		characters.add(player);
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		
-		for(int i = 0; i < 6; i++) {
-			for(int j = 0; j < 10; j++) {
-				Bug bug = new Bug(100 * j, 100 * i, 10);
-				characters.add(bug);
-			}
+		BufferedImage img = null;
+		
+		try {
+			img = ImageIO.read(new File("src/th.jpg"));
+		} catch(IOException e) {
+			
 		}
 		
-//		add(new Main());
-//		
-//		// Sets window characteristics
-//		setSize(192 * SCALE_FACTOR, 108 * SCALE_FACTOR);
-//		setTitle("Bug Hunter v0.0.1");
-//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		setLocationRelativeTo(null);
-//		setResizable(false);
-	}
-	
-	private void runGame() {
-		while(true) {
-			// Do game stuff
-		}
-	}
-	
-	public void changeRight(boolean newRight) {
-		right = newRight;
-	}
-	
-	public void changeLeft(boolean newLeft) {
-		left = newLeft;
-	}
-	
-	public void changeShoot(boolean newShoot) {
-		shoot = newShoot;
+		g.drawImage(img, p1.x, p1.y, this);
 	}
 }

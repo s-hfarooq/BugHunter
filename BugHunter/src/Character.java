@@ -1,6 +1,6 @@
 
 // Abstract class for player and enemy classes
-public class Character {
+public abstract class Character {
 	private int currXLocation;
 	private int currYLocation;
 	private Image img;
