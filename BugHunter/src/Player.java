@@ -1,5 +1,6 @@
+import java.io.File;
 
-public class Player {
+public class Player extends Character {
 	private int health;
 	private int lives;
 	private int score;
@@ -9,6 +10,7 @@ public class Player {
 	private File spriteFile;
 	
 	public Player(int startingX) {
+		super(1, 1);
 		health = 3;
 		lives = 2;
 		score = 0;
