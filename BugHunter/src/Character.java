@@ -3,8 +3,6 @@
 public class Character {
 	private int currXLocation;
 	private int currYLocation;
-	private int moveX;
-	private int moveY;
 	private Image img;
 	
 	public Character(int newX, int newY) {

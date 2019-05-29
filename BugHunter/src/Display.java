@@ -18,11 +18,15 @@ public class Display extends JFrame {
 	private ArrayList<Character> characters;
 	
 	public static void main(String[] args) {
+		
+		Display display = new Display();
+		display.runGame();
+		
 		// Centers the thing on the screen
-		EventQueue.invokeLater(() -> {
-			Display ex = new Display();
-			ex.setVisible(true);
-		});
+//		EventQueue.invokeLater(() -> {
+//			Display ex = new Display();
+//			ex.setVisible(true);
+//		});
 
 	}
 	
@@ -74,6 +78,12 @@ public class Display extends JFrame {
 //		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //		setLocationRelativeTo(null);
 //		setResizable(false);
+	}
+	
+	private void runGame() {
+		while(true) {
+			// Do game stuff
+		}
 	}
 	
 	public void changeRight(boolean newRight) {

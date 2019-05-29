@@ -8,6 +8,16 @@ public class Bug extends Character {
 		speed = moveSpeed;
 	}
 	
+	public void move(int amnt) {
+		move(amnt);
+		
+		if(getCurrX() < 20 && amnt < 0) {
+			// move stuff
+		} else if(getCurrX() > 400 && amnt > 0) {
+			// other move stuff
+		}
+	}
+	
 	public int decreaseHP(int amount) {
 		health -= Math.abs(amount);
 		return health;
