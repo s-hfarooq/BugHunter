@@ -4,6 +4,7 @@ import java.awt.Graphics;
 
 public class Character {
 	
+	// Instance variables
 	private CharacterImg img;
 	private int x;
 	
@@ -12,14 +13,17 @@ public class Character {
 		x = locX;
 	}
 	
+	// Draws the object on the window
 	public void draw(Graphics g) {
 		img.draw(g, x, 10);
 	}
 	
+	// Alters the current x location to move the character
 	public void move(int amnt) {
 		x += amnt;
 	}
 	
+	// Getter methods
 	public int getX() {
 		return x;
 	}

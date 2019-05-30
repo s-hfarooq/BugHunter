@@ -13,9 +13,11 @@ import javax.swing.JPanel;
 
 public class Display extends Canvas {
 	
+	// Class constants
 	private final String NAME = "Bug Hunter v0.0.1";
 	private final int SCALE = 50;
 	
+	// Instance variables
 	private boolean left;
 	private boolean right;
 	
@@ -25,11 +27,14 @@ public class Display extends Canvas {
 	private BufferStrategy bS;
 	private Dimension size;
 	
+	// Display constructor - creates the layout and defines characteristics of the window
 	public Display() {
+		// Sets instance variables
 		left = false;
 		right = false;
 		characters = new ArrayList<Character>();
 		
+		// Creates window, defines characteristics
 		JFrame frame = new JFrame(NAME);
 		JPanel panel = (JPanel) frame.getContentPane();
 		size = new Dimension(16 * SCALE, 9 * SCALE);
@@ -41,6 +46,7 @@ public class Display extends Canvas {
 		frame.pack();
 		frame.setVisible(true);
 		
+		// Key press listener
 		addKeyListener(new KeyHandler(this));
 		requestFocus();
 		
@@ -50,28 +56,37 @@ public class Display extends Canvas {
 		start();
 	}
 	
+	// Creates character objects (player and enemies)
 	public void start() {
+		// Create a player image and object
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		CharacterImg img = new CharacterImg(toolkit.getImage("src/test/player.png"));
-		player = new Player(this, img, 20);
+		CharacterImg playerImg = new CharacterImg(toolkit.getImage("src/test/player.png"));
+		player = new Player(playerImg, 20);
 		characters.add(player);
+		
+		// TODO: create enemies
 	}
 	
+	// While loop for game - updates the display
 	public void gameRun() {
 		while(true) {
+			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
 			g.setColor(Color.white);
 			g.fillRect(0, 0, size.width, size.height);
 			
+			// Draws player, shows all objects on window
 			player.draw(g);
 			g.dispose();
 			bS.show();
 			
+			// Moves player if keys are being pressed
 			if(left)
 				player.move(-10);
 			else if(right)
 				player.move(10);
 			
+			// Delay so that things don't move too fast
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
@@ -80,10 +95,12 @@ public class Display extends Canvas {
 		}
 	}
 	
+	// Alters left boolean when the left arrow key is pressed or let go
 	public void left(boolean newLeft) {
 		left = newLeft;
 	}
 	
+	// Alters right boolean when the right arrow key is pressed or let go
 	public void right(boolean newRight) {
 		right = newRight;
 	}
