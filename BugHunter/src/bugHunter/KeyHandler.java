@@ -8,6 +8,7 @@ public class KeyHandler extends KeyAdapter {
 	// Class constants
 	private final int LEFT = KeyEvent.VK_LEFT;
 	private final int RIGHT = KeyEvent.VK_RIGHT;
+	private final int SHOOT = KeyEvent.VK_SPACE;
 	
 	// Instance variables
 	private Display disp;
@@ -25,6 +26,8 @@ public class KeyHandler extends KeyAdapter {
 			disp.left(true);
 		else if(key == RIGHT)
 			disp.right(true);
+		else if(key == SHOOT)
+			disp.shoot(true);
 	}
 	
 	// Runs when a key is released
@@ -36,5 +39,7 @@ public class KeyHandler extends KeyAdapter {
 			disp.left(false);
 		else if(key == RIGHT)
 			disp.right(false);
+		else if(key == SHOOT)
+			disp.shoot(false);
 	}
 }

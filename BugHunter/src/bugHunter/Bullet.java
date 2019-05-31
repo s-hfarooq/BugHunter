@@ -5,7 +5,7 @@ public class Bullet extends Character {
 	private Display disp;
 
 	public Bullet(Display display, CharacterImg image, int locX, int velX, int velY) {
-		super(display, image, locX, display.getSize().height - 70, velX, velY);
+		super(image, locX, display.getSize().height - 70, velX, velY, 1);
 		disp = display;
 	}
 }

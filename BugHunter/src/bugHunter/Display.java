@@ -23,18 +23,24 @@ public class Display extends Canvas {
 	// Instance variables
 	private boolean left;
 	private boolean right;
+	private boolean shoot;
+	private boolean isAlive;
 	
 	private Player player;
+	private ArrayList<Bullet> bullets;
 	private ArrayList<ArrayList<Enemy>> enemies;
 	
 	private BufferStrategy bS;
-	private Dimension size;
 	
 	// Display constructor - creates the layout and defines characteristics of the window
 	public Display() {
 		// Sets instance variables
 		left = false;
 		right = false;
+		shoot = false;
+		isAlive = true;
+		
+		bullets = new ArrayList<Bullet>();
 		enemies = new ArrayList<ArrayList<Enemy>>();
 		for(int i = 0; i < 3; i++)
 			enemies.add(new ArrayList<Enemy>());
@@ -42,7 +48,7 @@ public class Display extends Canvas {
 		// Creates window, defines characteristics
 		JFrame frame = new JFrame(NAME);
 		JPanel panel = (JPanel) frame.getContentPane();
-		size = new Dimension(16 * SCALE, 9 * SCALE);
+		Dimension size = new Dimension(16 * SCALE, 9 * SCALE);
 		panel.setPreferredSize(size);
 		
 		setBounds(0, 0, size.width, size.height);
@@ -75,23 +81,26 @@ public class Display extends Canvas {
 		
 		// Creates enemies
 		for(int r = 0; r < enemies.size(); r++) {
-			for(int c = 0; c < 10; c++) {
-				enemies.get(r).add(new Enemy(this, enemyImg, 15 + c * 70, 15 + r * 70, 0, 0));
-			}
+			for(int c = 0; c < 10; c++)
+				enemies.get(r).add(new Enemy(enemyImg, 15 + c * 70, 15 + r * 70, 0, 0));
 		}
 	}
 	
 	// While loop for game - updates the display
 	public void gameRun() {
+		// Single CharacterImg object created for all bullet objects
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		CharacterImg bulletImg = new CharacterImg(toolkit.getImage(BULLET_IMAGE));
+		
 		int frames = 0;
 
-		while(1 < 2) {
+		while(isAlive) {
 			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
-			g.setColor(Color.black);
-			g.fillRect(0, 0, size.width + 50, size.height + 50);
+			g.setColor(Color.white);
+			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
 			
-			// Draws player, shows all objects on window
+			// Draws player
 			player.draw(g);
 			
 			// Draw and move enemies
@@ -99,10 +108,9 @@ public class Display extends Canvas {
 				for(int c = 0; c < enemies.get(r).size(); c++) {
 					Enemy current = enemies.get(r).get(c);
 					
-					//start movement
-					if(frames == 0) {
+					// Start movement
+					if(frames == 0)
 						current.changeVelocity(1, 0);
-					}
 					
 					// Moves down
 					if(frames % 20 == 0)
@@ -110,21 +118,30 @@ public class Display extends Canvas {
 					else if(current.getYVelocity() == 1)
 						current.changeVelocity(0, -1);
 					
-					//moves left and right
+					// Moves left and right
 					if(frames % 5 == 0) {
-						if(current.getX() > size.width - 70) {
+						if(current.getX() > getSize().width - 70)
 							current.flipX();
-						}else if(current.getX() < 0) {
+						else if(current.getX() < 0)
 							current.flipX();
-						}
-						
 					}
 					
-					//apply movement
+					// Apply movement
 					current.move();
 				
-					// Draw current
+					// Draw current enemy
 					current.draw(g);
+				}
+			}
+			
+			// Draw and move bullets
+			for(int i = bullets.size() - 1; i > -1; i--) {
+				if(bullets.get(i).getY() > -50) {
+					bullets.get(i).move();
+					bullets.get(i).draw(g);
+				} else {
+					// Remove bullet if it's outside the view of the window
+					bullets.remove(i);
 				}
 			}
 			
@@ -134,13 +151,19 @@ public class Display extends Canvas {
 			// Moves player if keys are being pressed
 			if(left && player.getX() > 20)
 				player.changeVelocity(-1, 0);
-			else if(right && player.getX() < size.width - 70)
+			else if(right && player.getX() < getSize().width - 70)
 				player.changeVelocity(1, 0);
 			else if(!left && player.getXVelocity() > 0)
 				player.changeVelocity(-1, 0);
 			else if(!right && player.getXVelocity() < 0)
 				player.changeVelocity(1, 0);
 			player.move();
+			
+			// Shoot if space pressed
+			if(shoot) {
+				shootBullet(bulletImg);
+				shoot = !shoot;
+			}
 			
 			// Delay so that things don't move too fast
 			try {
@@ -153,6 +176,13 @@ public class Display extends Canvas {
 		}
 	}
 	
+	// Creates a new Bullet object and adds it to the bullets ArrayList
+	public void shootBullet(CharacterImg bulletImg) {
+		Bullet b = new Bullet(this, bulletImg, player.getX(), 0, 0);
+		b.changeVelocity(0, -1);
+		bullets.add(b);
+	}
+	
 	// Alters left boolean when the left arrow key is pressed or let go
 	public void left(boolean newLeft) {
 		left = newLeft;
@@ -163,7 +193,8 @@ public class Display extends Canvas {
 		right = newRight;
 	}
 	
-	public Dimension getSize() {
-		return size;
+	// Alters shoot boolean when the space bar is pressed or let go
+	public void shoot(boolean newShoot) {
+		shoot = newShoot;
 	}
 }
