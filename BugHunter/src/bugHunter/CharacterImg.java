@@ -1,4 +1,4 @@
-package test;
+package bugHunter;
 
 import java.awt.Graphics;
 import java.awt.Image;

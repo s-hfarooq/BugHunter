@@ -1,4 +1,4 @@
-package test;
+package bugHunter;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -15,6 +15,9 @@ public class Display extends Canvas {
 	
 	// Class constants
 	private final String NAME = "Bug Hunter v0.0.1";
+	private final String BUG_IMAGE = "src/bugHunter/bug.png";
+	private final String BULLET_IMAGE = "src/bugHunter/bullet.png";
+	private final String PLAYER_IMAGE = "src/bugHunter/player.png";
 	private final int SCALE = 70;
 	
 	// Instance variables
@@ -53,6 +56,9 @@ public class Display extends Canvas {
 		addKeyListener(new KeyHandler(this));
 		requestFocus();
 		
+		// Stops program when x button pressed
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		createBufferStrategy(2);
 		bS = getBufferStrategy();
 		
@@ -63,24 +69,22 @@ public class Display extends Canvas {
 	public void start() {
 		// Create a player image and object
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		CharacterImg playerImg = new CharacterImg(toolkit.getImage("src/test/player.png"));
-		CharacterImg enemyImg = new CharacterImg(toolkit.getImage("src/test/bug.png"));
+		CharacterImg playerImg = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
+		CharacterImg enemyImg = new CharacterImg(toolkit.getImage(BUG_IMAGE));
 		player = new Player(this, playerImg, 20);
 		
 		// Creates enemies
 		for(int r = 0; r < enemies.size(); r++) {
 			for(int c = 0; c < 10; c++) {
-				enemies.get(r).add(new Enemy(this, enemyImg, 15 + c * 70, 15 + r * 70));
+				enemies.get(r).add(new Enemy(this, enemyImg, 15 + c * 70, 15 + r * 70, 0, 0));
 			}
 		}
 	}
 	
 	// While loop for game - updates the display
 	public void gameRun() {
-		
 		int frames = 0;
-		//boolean left = false;
-		
+
 		while(1 < 2) {
 			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
@@ -93,21 +97,34 @@ public class Display extends Canvas {
 			// Draw and move enemies
 			for(int r = 0; r < enemies.size(); r++) {
 				for(int c = 0; c < enemies.get(r).size(); c++) {
-					// Move enemies
-//					if(frames % 20 == 0)
-//						enemies.get(r).get(c).moveY(1);
-//					//move left
-//					if(frames % 5 == 0 && enemies.get(r).get(enemies.get(r).size()-1).getX() > size.width - 70) {
-//						enemies.get(r).get(c).moveX(-1);
-//					//move right
-//					} else if(frames % 5 == 0 && enemies.get(r).get(0).getX() < 70) {
-//						enemies.get(r).get(c).moveX(1);
-//					} else if(frames % 5 == 0){
-//						enemies.get(r).get(c).moveX(1);
-//					}
-
-					// Draw enemies
-					enemies.get(r).get(c).draw(g);
+					Enemy current = enemies.get(r).get(c);
+					
+					//start movement
+					if(frames == 0) {
+						current.changeVelocity(1, 0);
+					}
+					
+					// Moves down
+					if(frames % 20 == 0)
+						current.changeVelocity(0, 1);
+					else if(current.getYVelocity() == 1)
+						current.changeVelocity(0, -1);
+					
+					//moves left and right
+					if(frames % 5 == 0) {
+						if(current.getX() > size.width - 70) {
+							current.flipX();
+						}else if(current.getX() < 0) {
+							current.flipX();
+						}
+						
+					}
+					
+					//apply movement
+					current.move();
+				
+					// Draw current
+					current.draw(g);
 				}
 			}
 			
@@ -115,12 +132,14 @@ public class Display extends Canvas {
 			bS.show();
 			
 			// Moves player if keys are being pressed
-			if(left)
+			if(left && player.getX() > 20)
 				player.changeVelocity(-1, 0);
-			else if(right)
+			else if(right && player.getX() < size.width - 70)
 				player.changeVelocity(1, 0);
-			else if(!left && !right)
-				player.changeVelocity(0, 0);
+			else if(!left && player.getXVelocity() > 0)
+				player.changeVelocity(-1, 0);
+			else if(!right && player.getXVelocity() < 0)
+				player.changeVelocity(1, 0);
 			player.move();
 			
 			// Delay so that things don't move too fast

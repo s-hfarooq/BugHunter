@@ -1,4 +1,4 @@
-package test;
+package bugHunter;
 
 public class Run {
 	
