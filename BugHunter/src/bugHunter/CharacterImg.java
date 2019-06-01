@@ -8,6 +8,7 @@ public class CharacterImg {
 	// Instance variables
 	private Image img;
 	
+	// Constructor
 	public CharacterImg(Image image) {
 		img = image;
 	}

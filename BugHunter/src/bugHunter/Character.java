@@ -16,6 +16,7 @@ public class Character {
 	private int health;
 	private boolean isDead;
 	
+	// Constructor
 	public Character(CharacterImg image, int locX, int locY, int velX, int velY, int totalHealth) {
 		img = image;
 		x = locX;

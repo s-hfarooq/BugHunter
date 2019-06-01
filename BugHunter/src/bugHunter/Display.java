@@ -26,24 +26,25 @@ public class Display extends Canvas {
 	private boolean shoot;
 	private boolean isAlive;
 	
+	private double delayPerFrame;
+	
 	private Player player;
 	private ArrayList<Bullet> bullets;
 	private ArrayList<ArrayList<Enemy>> enemies;
-	
 	private BufferStrategy bS;
 	
 	// Display constructor - creates the layout and defines characteristics of the window
 	public Display() {
-		// Sets instance variables
+		// Set instance variables
 		left = false;
 		right = false;
 		shoot = false;
 		isAlive = true;
 		
+		delayPerFrame = 5.0;
+		
 		bullets = new ArrayList<Bullet>();
 		enemies = new ArrayList<ArrayList<Enemy>>();
-		for(int i = 0; i < 3; i++)
-			enemies.add(new ArrayList<Enemy>());
 		
 		// Creates window, defines characteristics
 		JFrame frame = new JFrame(NAME);
@@ -67,12 +68,10 @@ public class Display extends Canvas {
 		
 		createBufferStrategy(2);
 		bS = getBufferStrategy();
-		
-		start();
 	}
 	
 	// Creates character objects (player and enemies)
-	public void start() {
+	public void createObjects() {
 		// Create a player image and object
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		CharacterImg playerImg = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
@@ -80,20 +79,22 @@ public class Display extends Canvas {
 		player = new Player(this, playerImg, 20);
 		
 		// Creates enemies
-		for(int r = 0; r < enemies.size(); r++) {
-			for(int c = 0; c < 10; c++)
+		for(int r = 0; r < 3; r++) {
+			enemies.add(new ArrayList<Enemy>());
+			
+			for (int c = 0; c < 10; c++)
 				enemies.get(r).add(new Enemy(enemyImg, 15 + c * 70, 15 + r * 70, 0, 0));
 		}
 	}
 	
-	// While loop for game - updates the display
+	// Game loop - updates the display
 	public void gameRun() {
 		// Single CharacterImg object created for all bullet objects
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		CharacterImg bulletImg = new CharacterImg(toolkit.getImage(BULLET_IMAGE));
 		
 		int frames = 0;
-
+		
 		while(isAlive) {
 			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
@@ -129,6 +130,7 @@ public class Display extends Canvas {
 					// Lower enemy health when hit by bullet
 					for(int i = bullets.size() - 1; i > -1; i--) {
 						if(current.collide(bullets.get(i))) {
+							// Delete bullet and lower HP of current enemy
 							bullets.remove(i);
 							current.lowerHP();
 							
@@ -149,7 +151,9 @@ public class Display extends Canvas {
 			// Draw and move bullets
 			for(int i = bullets.size() - 1; i > -1; i--) {
 				Bullet current = bullets.get(i);
+				
 				if(current.getY() > -50) {
+					// Move and draw bullet if still in view
 					current.move();
 					current.draw(g);
 				} else {
@@ -158,6 +162,7 @@ public class Display extends Canvas {
 				}
 			}
 			
+			// Update view
 			g.dispose();
 			bS.show();
 			
@@ -180,7 +185,7 @@ public class Display extends Canvas {
 			
 			// Delay so that things don't move too fast
 			try {
-				Thread.sleep(5);
+				Thread.sleep((long) delayPerFrame);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -201,8 +206,9 @@ public class Display extends Canvas {
 		bullets.add(b);
 	}
 	
+	// Runs once the player dies
 	public void endGame() {
-		
+		System.out.println("END GAME");
 	}
 	
 	// Alters left boolean when the left arrow key is pressed or let go

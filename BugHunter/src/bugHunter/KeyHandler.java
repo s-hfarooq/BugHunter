@@ -13,6 +13,7 @@ public class KeyHandler extends KeyAdapter {
 	// Instance variables
 	private Display disp;
 	
+	// Constructor
 	public KeyHandler(Display display) {
 		disp = display;
 	}
