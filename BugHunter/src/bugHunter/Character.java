@@ -4,6 +4,9 @@ import java.awt.Graphics;
 
 public class Character {
 	
+	// Class constants
+	private final int COLLIDE_LIMIT = 25;
+	
 	// Instance variables
 	private CharacterImg img;
 	private int x;
@@ -64,6 +67,14 @@ public class Character {
 	// Changes image of object
 	public void changeImg(CharacterImg newImg) {
 		img = newImg;
+	}
+	
+	// Returns true if this and other intersect each other, false otherwise
+	public boolean collide(Character other) {
+		boolean hit = false;
+		if(Math.abs(x - other.getX()) < COLLIDE_LIMIT && Math.abs(y - other.getY()) < COLLIDE_LIMIT)
+			hit = true;
+		return hit;
 	}
 	
 	// Getter methods

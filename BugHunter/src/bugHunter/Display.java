@@ -97,7 +97,7 @@ public class Display extends Canvas {
 		while(isAlive) {
 			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
-			g.setColor(Color.white);
+			g.setColor(Color.black);
 			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
 			
 			// Draws player
@@ -139,6 +139,14 @@ public class Display extends Canvas {
 				if(bullets.get(i).getY() > -50) {
 					bullets.get(i).move();
 					bullets.get(i).draw(g);
+					
+					// Remove enemy if bullet hits it
+					for(int p = 0; p < enemies.size(); p++) {
+						for(int k = enemies.get(p).size() - 1; k > -1; k--) {
+							if(bullets.get(i).collide(enemies.get(p).get(k)))
+								enemies.get(p).remove(k);
+						}
+					}
 				} else {
 					// Remove bullet if it's outside the view of the window
 					bullets.remove(i);
