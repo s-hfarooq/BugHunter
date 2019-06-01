@@ -126,6 +126,18 @@ public class Display extends Canvas {
 							current.flipX();
 					}
 					
+					// Lower enemy health when hit by bullet
+					for(int i = bullets.size() - 1; i > -1; i--) {
+						if(current.collide(bullets.get(i))) {
+							bullets.remove(i);
+							current.lowerHP();
+							
+							// Delete enemy if it's dead
+							if(current.isDead())
+								enemies.get(r).remove(c);
+						}
+					}
+					
 					// Apply movement
 					current.move();
 				
@@ -136,17 +148,10 @@ public class Display extends Canvas {
 			
 			// Draw and move bullets
 			for(int i = bullets.size() - 1; i > -1; i--) {
-				if(bullets.get(i).getY() > -50) {
-					bullets.get(i).move();
-					bullets.get(i).draw(g);
-					
-					// Remove enemy if bullet hits it
-					for(int p = 0; p < enemies.size(); p++) {
-						for(int k = enemies.get(p).size() - 1; k > -1; k--) {
-							if(bullets.get(i).collide(enemies.get(p).get(k)))
-								enemies.get(p).remove(k);
-						}
-					}
+				Bullet current = bullets.get(i);
+				if(current.getY() > -50) {
+					current.move();
+					current.draw(g);
 				} else {
 					// Remove bullet if it's outside the view of the window
 					bullets.remove(i);
@@ -169,7 +174,7 @@ public class Display extends Canvas {
 			
 			// Shoot if space pressed
 			if(shoot) {
-				shootBullet(bulletImg);
+				shootBullet(bulletImg, player, -1);
 				shoot = !shoot;
 			}
 			
@@ -180,15 +185,24 @@ public class Display extends Canvas {
 				e.printStackTrace();
 			}
 			
+			// Ends game when player dies
+			isAlive = !player.isDead();
+			
 			frames++;
 		}
+		
+		endGame();
 	}
 	
 	// Creates a new Bullet object and adds it to the bullets ArrayList
-	public void shootBullet(CharacterImg bulletImg) {
-		Bullet b = new Bullet(this, bulletImg, player.getX(), 0, 0);
-		b.changeVelocity(0, -1);
+	public void shootBullet(CharacterImg bulletImg, Character creator, int direction) {
+		Bullet b = new Bullet(this, bulletImg, creator.getX(), 0, 0);
+		b.changeVelocity(0, direction);
 		bullets.add(b);
+	}
+	
+	public void endGame() {
+		
 	}
 	
 	// Alters left boolean when the left arrow key is pressed or let go

@@ -16,13 +16,13 @@ public class Character {
 	private int health;
 	private boolean isDead;
 	
-	public Character(CharacterImg image, int locX, int locY, int velX, int velY, int newHealth) {
+	public Character(CharacterImg image, int locX, int locY, int velX, int velY, int totalHealth) {
 		img = image;
 		x = locX;
 		y = locY;
 		xVelocity = velX;
 		yVelocity = velY;
-		health = newHealth;
+		health = totalHealth;
 		isDead = false;
 	}
 	
