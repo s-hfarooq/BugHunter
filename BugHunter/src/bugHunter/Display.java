@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -18,6 +19,7 @@ public class Display extends Canvas {
 	private final String BUG_IMAGE = "src/bugHunter/bug.png";
 	private final String BULLET_IMAGE = "src/bugHunter/bullet.png";
 	private final String PLAYER_IMAGE = "src/bugHunter/player.png";
+	private final String ICON_IMAGE = "src/bugHunter/player.png";
 	private final double TIME_BETWEEN_SHOTS = 500;
 	private final int SCALE = 70;
 	
@@ -67,6 +69,9 @@ public class Display extends Canvas {
 		// Stops program when x button pressed
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		// Set icon image
+		frame.setIconImage(new ImageIcon(ICON_IMAGE).getImage());
+		
 		createBufferStrategy(2);
 		bS = getBufferStrategy();
 	}
@@ -84,7 +89,7 @@ public class Display extends Canvas {
 			enemies.add(new ArrayList<Enemy>());
 			
 			for (int c = 0; c < 10; c++)
-				enemies.get(r).add(new Enemy(enemyImg, 15 + c * 70, 15 + r * 70, 0, 0));
+				enemies.get(r).add(new Enemy(enemyImg, (70 * c) + 15, (70 * r) + 15, 0, 0));
 		}
 	}
 	
@@ -123,9 +128,7 @@ public class Display extends Canvas {
 					
 					// Moves left and right
 					if(frames % 5 == 0) {
-						if(current.getX() > getSize().width - 70)
-							current.flipX();
-						else if(current.getX() < 0)
+						if(current.getX() < 0 || current.getX() > getSize().width - 70)
 							current.flipX();
 					}
 					
@@ -188,13 +191,20 @@ public class Display extends Canvas {
 			}
 			
 			// Exit game loop when player dies or exit game loop when all enemies are dead
-
 			if(player.isDead()) {
 				runGame = false;
 				playerDead();
-			} else if(enemies.get(0).size() < 1 && enemies.get(1).size() < 1 && enemies.get(2).size() < 1) {
-				runGame = false;
-				playerWon();
+			} else {
+				boolean noEnemies = true;
+				for(int i = 0; i < enemies.size(); i++) {
+					if(enemies.get(i).size() > 0)
+						noEnemies = false;
+				}
+				
+				if(noEnemies) {
+					runGame = false;
+					playerWon();
+				}
 			}
 			
 			frames++;
