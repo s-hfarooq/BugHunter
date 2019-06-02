@@ -18,13 +18,14 @@ public class Display extends Canvas {
 	private final String BUG_IMAGE = "src/bugHunter/bug.png";
 	private final String BULLET_IMAGE = "src/bugHunter/bullet.png";
 	private final String PLAYER_IMAGE = "src/bugHunter/player.png";
+	private final double TIME_BETWEEN_SHOTS = 500;
 	private final int SCALE = 70;
 	
 	// Instance variables
 	private boolean left;
 	private boolean right;
 	private boolean shoot;
-	private boolean isAlive;
+	private boolean runGame;
 	
 	private double delayPerFrame;
 	
@@ -39,7 +40,7 @@ public class Display extends Canvas {
 		left = false;
 		right = false;
 		shoot = false;
-		isAlive = true;
+		runGame = true;
 		
 		delayPerFrame = 5.0;
 		
@@ -94,8 +95,9 @@ public class Display extends Canvas {
 		CharacterImg bulletImg = new CharacterImg(toolkit.getImage(BULLET_IMAGE));
 		
 		int frames = 0;
+		long firstTime = System.currentTimeMillis();
 		
-		while(isAlive) {
+		while(runGame) {
 			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
 			g.setColor(Color.black);
@@ -177,11 +179,25 @@ public class Display extends Canvas {
 				player.changeVelocity(1, 0);
 			player.move();
 			
-			// Shoot if space pressed
-			if(shoot) {
+			// Shoot if space pressed and enough time has passed since the previous shot
+			long currTime = System.currentTimeMillis();
+			if(shoot && currTime - firstTime > TIME_BETWEEN_SHOTS) {
 				shootBullet(bulletImg, player, -1);
 				shoot = !shoot;
+				firstTime = currTime;
 			}
+			
+			// Exit game loop when player dies or exit game loop when all enemies are dead
+
+			if(player.isDead()) {
+				runGame = false;
+				playerDead();
+			} else if(enemies.get(0).size() < 1 && enemies.get(1).size() < 1 && enemies.get(2).size() < 1) {
+				runGame = false;
+				playerWon();
+			}
+			
+			frames++;
 			
 			// Delay so that things don't move too fast
 			try {
@@ -189,14 +205,7 @@ public class Display extends Canvas {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
-			// Ends game when player dies
-			isAlive = !player.isDead();
-			
-			frames++;
 		}
-		
-		endGame();
 	}
 	
 	// Creates a new Bullet object and adds it to the bullets ArrayList
@@ -207,8 +216,13 @@ public class Display extends Canvas {
 	}
 	
 	// Runs once the player dies
-	public void endGame() {
+	public void playerDead() {
 		System.out.println("END GAME");
+	}
+	
+	// Runs if all enemies are dead and player is still alive
+	public void playerWon() {
+		System.out.println("All enemies dead");
 	}
 	
 	// Alters left boolean when the left arrow key is pressed or let go
