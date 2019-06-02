@@ -171,17 +171,6 @@ public class Display extends Canvas {
 			g.dispose();
 			bS.show();
 			
-			// Moves player if keys are being pressed
-			if(left && player.getX() > 20)
-				player.changeVelocity(-1, 0);
-			else if(right && player.getX() < getSize().width - 70)
-				player.changeVelocity(1, 0);
-			else if(!left && player.getXVelocity() > 0)
-				player.changeVelocity(-1, 0);
-			else if(!right && player.getXVelocity() < 0)
-				player.changeVelocity(1, 0);
-			player.move();
-			
 			// Shoot if space pressed and enough time has passed since the previous shot
 			long currTime = System.currentTimeMillis();
 			if(shoot && currTime - firstTime > TIME_BETWEEN_SHOTS) {
@@ -190,22 +179,9 @@ public class Display extends Canvas {
 				firstTime = currTime;
 			}
 			
-			// Exit game loop when player dies or exit game loop when all enemies are dead
-			if(player.isDead()) {
-				runGame = false;
-				playerDead();
-			} else {
-				boolean noEnemies = true;
-				for(int i = 0; i < enemies.size(); i++) {
-					if(enemies.get(i).size() > 0)
-						noEnemies = false;
-				}
-				
-				if(noEnemies) {
-					runGame = false;
-					playerWon();
-				}
-			}
+			// Move player and check to see if the game should end
+			movePlayer();			
+			endGame();
 			
 			frames++;
 			
@@ -225,9 +201,41 @@ public class Display extends Canvas {
 		bullets.add(b);
 	}
 	
+	// Moves player if keys are being pressed
+	public void movePlayer() {
+		if(left && player.getX() > 20)
+			player.changeVelocity(-1, 0);
+		else if(right && player.getX() < getSize().width - 70)
+			player.changeVelocity(1, 0);
+		else if(!left && player.getXVelocity() > 0)
+			player.changeVelocity(-1, 0);
+		else if(!right && player.getXVelocity() < 0)
+			player.changeVelocity(1, 0);
+		player.move();
+	}
+	
+	// Exit game loop when player dies / exit game loop when all enemies are dead
+	public void endGame() {
+		if(player.isDead()) {
+			runGame = false;
+			playerDead();
+		} else {
+			boolean noEnemies = true;
+			for(int i = 0; i < enemies.size(); i++) {
+				if(enemies.get(i).size() > 0)
+					noEnemies = false;
+			}
+			
+			if(noEnemies) {
+				runGame = false;
+				playerWon();
+			}
+		}
+	}
+	
 	// Runs once the player dies
 	public void playerDead() {
-		System.out.println("END GAME");
+		System.out.println("Game over");
 	}
 	
 	// Runs if all enemies are dead and player is still alive
