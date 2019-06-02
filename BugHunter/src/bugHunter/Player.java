@@ -2,7 +2,7 @@ package bugHunter;
 
 public class Player extends Character {
 	
-	Display disp;
+	private Display disp;
 	
 	// Constructor
 	public Player(Display display, CharacterImg image, int locX) {

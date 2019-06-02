@@ -15,13 +15,13 @@ import javax.swing.JPanel;
 public class Display extends Canvas {
 	
 	// Class constants
-	private final String NAME = "Bug Hunter v0.0.1";
-	private final String BUG_IMAGE = "src/bugHunter/bug.png";
-	private final String BULLET_IMAGE = "src/bugHunter/bullet.png";
-	private final String PLAYER_IMAGE = "src/bugHunter/player.png";
-	private final String ICON_IMAGE = "src/bugHunter/player.png";
-	private final double TIME_BETWEEN_SHOTS = 500;
-	private final int SCALE = 70;
+	private final String NAME = "Bug Hunter v0.0.1";					// Name of program
+	private final String BUG_IMAGE = "src/bugHunter/bug.png";			// File location for bug image
+	private final String BULLET_IMAGE = "src/bugHunter/bullet.png";		// File location for bullet image
+	private final String PLAYER_IMAGE = "src/bugHunter/player.png";		// File location for player image
+	private final String ICON_IMAGE = "src/bugHunter/player.png";		// File location for icon image
+	private final double TIME_BETWEEN_SHOTS = 500;						// Delay between drawing new frames
+	private final int SCALE = 70;										// Scale factor for window
 	
 	// Instance variables
 	private boolean left;
@@ -93,14 +93,14 @@ public class Display extends Canvas {
 		}
 	}
 	
-	// Game loop - updates the display
+	// Game loop - updates the display and moves everything
 	public void gameRun() {
 		// Single CharacterImg object created for all bullet objects
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		CharacterImg bulletImg = new CharacterImg(toolkit.getImage(BULLET_IMAGE));
 		
-		int frames = 0;
-		long firstTime = System.currentTimeMillis();
+		int frames = 0;									// Total frames displayed
+		long firstTime = System.currentTimeMillis();	// Time last bullet was shot
 		
 		while(runGame) {
 			// Sets up the graphics to be displayed

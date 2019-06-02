@@ -6,9 +6,9 @@ import java.awt.event.KeyEvent;
 public class KeyHandler extends KeyAdapter {
 
 	// Class constants
-	private final int LEFT = KeyEvent.VK_LEFT;
-	private final int RIGHT = KeyEvent.VK_RIGHT;
-	private final int SHOOT = KeyEvent.VK_SPACE;
+	private final int LEFT = KeyEvent.VK_LEFT;			// Left key ID
+	private final int RIGHT = KeyEvent.VK_RIGHT;		// Right key ID
+	private final int SHOOT = KeyEvent.VK_SPACE;		// Shoot key ID
 	
 	// Instance variables
 	private Display disp;
