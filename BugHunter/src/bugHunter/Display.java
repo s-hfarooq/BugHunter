@@ -4,6 +4,8 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.io.BufferedWriter;
@@ -17,6 +19,7 @@ import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class Display extends Canvas {
@@ -114,8 +117,6 @@ public class Display extends Canvas {
 		CharacterImg playerRight = new CharacterImg(toolkit.getImage(PLAYER_RIGHT));
 		CharacterImg playerLeft = new CharacterImg(toolkit.getImage(PLAYER_LEFT));
 		CharacterImg playerCenter = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
-
-
 		
 		// Create list of high scores
 		File scores = new File(SCORE_FILE);
@@ -127,17 +128,23 @@ public class Display extends Canvas {
 		
 		fileScan.close();
 		
-		int frames = 0;									// Total frames displayed
-		long firstTime = System.currentTimeMillis();	// Time last bullet was shot
+		int frames = 0;
+		long firstTime = System.currentTimeMillis();
 		
 		while(runGame) {
 			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
+			
 			g.setColor(Color.black);
 			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
 			
 			// Draws player
 			player.draw(g);
+			
+			// Display health and high score
+			g.setColor(Color.white);
+			g.drawString("Health: " + player.getHP(), getSize().width - 100, 25);
+			g.drawString("Score: " + currentScore, getSize().width - 100, 50);
 			
 			// Draw and move enemies
 			boolean first = true;
