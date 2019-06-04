@@ -65,6 +65,12 @@ public class Character {
 			isDead = true;
 	}
 	
+	// Sets the Character to 0 HP
+	public void kill() {
+		health = 0;
+		isDead = true;
+	}
+	
 	// Changes image of object
 	public void changeImg(CharacterImg newImg) {
 		img = newImg;
@@ -93,6 +99,10 @@ public class Character {
 	
 	public int getY() {
 		return y;
+	}
+	
+	public int getHP() {
+		return health;
 	}
 	
 	public boolean isDead() {
