@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -28,6 +31,7 @@ public class Display extends Canvas {
 	private boolean right;
 	private boolean shoot;
 	private boolean runGame;
+	private long currentScore;
 	
 	private double delayPerFrame;
 	
@@ -76,7 +80,7 @@ public class Display extends Canvas {
 		bS = getBufferStrategy();
 	}
 	
-	// Creates character objects (player and enemies)
+	// Creates character objects (player, enemies, bullets, etc)
 	public void createObjects() {
 		// Create a player image and object
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -94,10 +98,23 @@ public class Display extends Canvas {
 	}
 	
 	// Game loop - updates the display and moves everything
-	public void gameRun() {
+	public void gameRun() throws FileNotFoundException {
 		// Single CharacterImg object created for all bullet objects
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		CharacterImg bulletImg = new CharacterImg(toolkit.getImage(BULLET_IMAGE));
+		
+		//create list of high scores
+		File scores = new File("HighScores.txt");
+		Scanner fileScan = new Scanner(scores);
+		ArrayList<Score> highScores = new ArrayList<Score>();
+		
+		for(int i = 0; i < 2; i++) {
+			if(fileScan.hasNext()) {
+				highScores.add(new Score(fileScan.next(), fileScan.nextLong()));
+			}
+		}
+		
+		fileScan.close();
 		
 		int frames = 0;									// Total frames displayed
 		long firstTime = System.currentTimeMillis();	// Time last bullet was shot
@@ -138,10 +155,13 @@ public class Display extends Canvas {
 							// Delete bullet and lower HP of current enemy
 							bullets.remove(i);
 							current.lowerHP();
+							currentScore += 100;
 							
 							// Delete enemy if it's dead
-							if(current.isDead())
+							if(current.isDead()) {
 								enemies.get(r).remove(c);
+								currentScore += 500;
+							}
 						}
 					}
 					
@@ -239,7 +259,7 @@ public class Display extends Canvas {
 	}
 	
 	// Runs if all enemies are dead and player is still alive
-	public void playerWon() {
+	public void playerWon() throws FileNotFoundException {
 		System.out.println("All enemies dead");
 	}
 	
