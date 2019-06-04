@@ -49,6 +49,7 @@ public class Display extends Canvas {
 	private ArrayList<Bullet> playerBullets;
 	private ArrayList<Bullet> enemyBullets;
 	private ArrayList<ArrayList<Enemy>> enemies;
+	private ArrayList<Score> highScores;
 	private BufferStrategy bS;
 	
 	// Display constructor - creates the layout and defines characteristics of the window
@@ -65,6 +66,7 @@ public class Display extends Canvas {
 		playerBullets = new ArrayList<Bullet>();
 		enemyBullets = new ArrayList<Bullet>();
 		enemies = new ArrayList<ArrayList<Enemy>>();
+		highScores = new ArrayList<Score>();
 		
 		// Creates window, defines characteristics
 		JFrame frame = new JFrame(NAME);
@@ -121,7 +123,6 @@ public class Display extends Canvas {
 		// Create list of high scores
 		File scores = new File(SCORE_FILE);
 		Scanner fileScan = new Scanner(scores);
-		ArrayList<Score> highScores = new ArrayList<Score>();
 		
 		while(fileScan.hasNext())
 			highScores.add(new Score(fileScan.next(), fileScan.nextLong()));
@@ -228,7 +229,7 @@ public class Display extends Canvas {
 			// Move player and check to see if the game should end
 			player.moveToBottom();
 			movePlayer(playerLeft, playerRight, playerCenter);	
-			endGame(highScores);
+			checkEndGame();
 			
 			frames++;
 			
@@ -307,10 +308,11 @@ public class Display extends Canvas {
 	}
 	
 	// Exit game loop when player dies / exit game loop when all enemies are dead
-	public void endGame(ArrayList<Score> highScores) {
+	public void checkEndGame() {
+		String over = "GAME OVER";
+		
 		if(player.isDead()) {
 			runGame = false;
-			playerDead(highScores);
 		} else {
 			boolean noEnemies = true;
 			for(int i = 0; i < enemies.size(); i++) {
@@ -320,35 +322,40 @@ public class Display extends Canvas {
 			
 			if(noEnemies) {
 				runGame = false;
-				playerWon(highScores);
+				currentScore += 500;
+				over = "YOU WON!";
 			}
 		}
-	}
-	
-	// Runs once the player dies
-	public void playerDead(ArrayList<Score> highScores) {
-		System.out.println("Game over");
-		try {
-			saveScores(highScores);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	// Runs if all enemies are dead and player is still alive
-	public void playerWon(ArrayList<Score> highScores) {
-		System.out.println("All enemies dead");
-		currentScore += 500;
 		
-		try {
-			saveScores(highScores);
-		} catch (IOException e) {
-			e.printStackTrace();
+		if(!runGame) {
+			// Save scores to file
+			try {
+				saveScores();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
+			
+			g.setColor(Color.black);
+			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
+			
+			// Display end screen
+			g.setColor(Color.white);
+			String score = "Final score: " + currentScore;
+			Score sHigh = getHighestScore();
+			String highScore = "High score - Name: " + sHigh.getName() + ", Score - " + sHigh.getScore();
+			g.drawString(over, (getSize().width - g.getFontMetrics().stringWidth(over)) / 2, (getSize().height / 2) - 25);			
+			g.drawString(score, (getSize().width - g.getFontMetrics().stringWidth(score)) / 2, getSize().height / 2);
+			g.drawString(highScore, (getSize().width - g.getFontMetrics().stringWidth(highScore)) / 2, (getSize().height / 2) + 25);
+
+			g.dispose();
+			bS.show();
 		}
 	}
 	
 	// Save high scores to file
-	public void saveScores(ArrayList<Score> highScores) throws IOException {
+	public void saveScores() throws IOException {
 		highScores.add(new Score("NAME", currentScore));
 		File scores = new File(SCORE_FILE);
 		PrintStream writer = new PrintStream(scores);
@@ -372,5 +379,16 @@ public class Display extends Canvas {
 	// Alters shoot boolean when the space bar is pressed or let go
 	public void shoot(boolean newShoot) {
 		shoot = newShoot;
+	}
+	
+	public Score getHighestScore() {
+		Score max = new Score("MIN", Long.MIN_VALUE);
+		
+		for(int i = 0; i < highScores.size(); i++) {
+			if(highScores.get(i).getScore() > max.getScore())
+				max = highScores.get(i);
+		}
+		
+		return max;
 	}
 }
