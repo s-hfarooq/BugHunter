@@ -26,9 +26,10 @@ public class Display extends Canvas {
 	private final String BUG_IMAGE = "src/bugHunter/Bug.png";			// File location for bug image
 	private final String BULLET_IMAGE = "src/bugHunter/Bullet.png";		// File location for bullet image
 	private final String PLAYER_IMAGE = "src/bugHunter/Ship.png";		// File location for player image
+	private final String PLAYER_RIGHT = "src/bugHunter/ShipR.png";		// File location for the player image leaning right
+	private final String PLAYER_LEFT = "src/bugHunter/ShipL.png";		// File location for the player image leaning left
 	private final String ICON_IMAGE = "src/bugHunter/Ship.png";			// File location for icon image
-	private final String PLAYER_RIGHT = "src/bugHunter/ShipR.png";
-	private final String PLAYER_LEFT = "src/bugHunter/ShipL.png";
+	private final String SCORE_FILE = "src/bugHunter/HighScores.txt";	// File location for high scores
 	private final double TIME_BETWEEN_SHOTS = 1200;						// Delay between shooting bullets by the player (in ms)
 	private final int SCALE = 70;										// Scale factor for window
 	
@@ -73,7 +74,6 @@ public class Display extends Canvas {
 		
 		frame.pack();
 		frame.setVisible(true);
-		//frame.setResizable(false);
 		
 		// Key press listener
 		addKeyListener(new KeyHandler(this));
@@ -117,15 +117,13 @@ public class Display extends Canvas {
 
 
 		
-		//create list of high scores
-		File scores = new File("src/bugHunter/HighScores.txt");
+		// Create list of high scores
+		File scores = new File(SCORE_FILE);
 		Scanner fileScan = new Scanner(scores);
 		ArrayList<Score> highScores = new ArrayList<Score>();
 		
-		for(int i = 0; i < 2; i++) {
-			if(fileScan.hasNext())
-				highScores.add(new Score(fileScan.next(), fileScan.nextLong()));
-		}
+		while(fileScan.hasNext())
+			highScores.add(new Score(fileScan.next(), fileScan.nextLong()));
 		
 		fileScan.close();
 		
@@ -323,7 +321,6 @@ public class Display extends Canvas {
 		try {
 			saveScores(highScores);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -336,14 +333,14 @@ public class Display extends Canvas {
 		try {
 			saveScores(highScores);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
+	// Save high scores to file
 	public void saveScores(ArrayList<Score> highScores) throws IOException {
 		highScores.add(new Score("NAME", currentScore));
-		File scores = new File("src/bugHunter/HighScores.txt");
+		File scores = new File(SCORE_FILE);
 		PrintStream writer = new PrintStream(scores);
 		
 		for(int i = 0; i < highScores.size(); i++)
