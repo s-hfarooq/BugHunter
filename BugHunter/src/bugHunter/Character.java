@@ -8,6 +8,7 @@ public class Character {
 	private final int COLLIDE_LIMIT = 25;	// Range the two images must be within to count as a collision
 	
 	// Instance variables
+	private Display disp;
 	private CharacterImg img;
 	private int x;
 	private int y;
@@ -17,7 +18,8 @@ public class Character {
 	private boolean isDead;
 	
 	// Constructor
-	public Character(CharacterImg image, int locX, int locY, int velX, int velY, int totalHealth) {
+	public Character(Display display, CharacterImg image, int locX, int locY, int velX, int velY, int totalHealth) {
+		disp = display;
 		img = image;
 		x = locX;
 		y = locY;
@@ -82,6 +84,10 @@ public class Character {
 		if(Math.abs(x - other.getX()) < COLLIDE_LIMIT && Math.abs(y - other.getY()) < COLLIDE_LIMIT)
 			hit = true;
 		return hit;
+	}
+	
+	public void moveToBottom() {
+		y = disp.getSize().height - 70;
 	}
 	
 	// Getter methods

@@ -105,7 +105,7 @@ public class Display extends Canvas {
 			enemies.add(new ArrayList<Enemy>());
 			
 			for (int c = 0; c < 10; c++)
-				enemies.get(r).add(new Enemy(enemyImg, (70 * c) + 15, (70 * r) + 15, 0, 0));
+				enemies.get(r).add(new Enemy(this, enemyImg, (70 * c) + 15, (70 * r) + 15, 0, 0));
 		}
 	}
 	
@@ -143,8 +143,10 @@ public class Display extends Canvas {
 			
 			// Display health and high score
 			g.setColor(Color.white);
-			g.drawString("Health: " + player.getHP(), getSize().width - 100, 25);
-			g.drawString("Score: " + currentScore, getSize().width - 100, 50);
+			String lives = "Lives: " + player.getHP();
+			String score = "Score: " + currentScore;
+			g.drawString(lives, getSize().width - g.getFontMetrics().stringWidth(lives) - 25, 25);
+			g.drawString(score, getSize().width - g.getFontMetrics().stringWidth(score) - 25, 50);
 			
 			// Draw and move enemies
 			boolean first = true;
@@ -224,7 +226,8 @@ public class Display extends Canvas {
 			}
 			
 			// Move player and check to see if the game should end
-			movePlayer(playerLeft, playerRight, playerCenter);			
+			player.moveToBottom();
+			movePlayer(playerLeft, playerRight, playerCenter);	
 			endGame(highScores);
 			
 			frames++;

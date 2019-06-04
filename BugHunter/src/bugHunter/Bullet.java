@@ -6,7 +6,7 @@ public class Bullet extends Character {
 
 	// Constructor
 	public Bullet(Display display, CharacterImg image, int locX, int locY, int velX, int velY) {
-		super(image, locX, locY, velX, velY, 1);
+		super(display, image, locX, locY, velX, velY, 1);
 		disp = display;
 	}
 }
