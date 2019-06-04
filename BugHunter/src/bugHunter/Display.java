@@ -336,7 +336,6 @@ public class Display extends Canvas {
 			}
 			
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
-			
 			g.setColor(Color.black);
 			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
 			
@@ -344,7 +343,7 @@ public class Display extends Canvas {
 			g.setColor(Color.white);
 			String score = "Final score: " + currentScore;
 			Score sHigh = getHighestScore();
-			String highScore = "High score - Name: " + sHigh.getName() + ", Score - " + sHigh.getScore();
+			String highScore = "High score - Name: " + sHigh.getName() + ", Score: " + sHigh.getScore();
 			g.drawString(over, (getSize().width - g.getFontMetrics().stringWidth(over)) / 2, (getSize().height / 2) - 25);			
 			g.drawString(score, (getSize().width - g.getFontMetrics().stringWidth(score)) / 2, getSize().height / 2);
 			g.drawString(highScore, (getSize().width - g.getFontMetrics().stringWidth(highScore)) / 2, (getSize().height / 2) + 25);
@@ -356,7 +355,7 @@ public class Display extends Canvas {
 	
 	// Save high scores to file
 	public void saveScores() throws IOException {
-		highScores.add(new Score("NAME", currentScore));
+		highScores.add(new Score("Player" + (highScores.size() + 1), currentScore));
 		File scores = new File(SCORE_FILE);
 		PrintStream writer = new PrintStream(scores);
 		
@@ -381,6 +380,7 @@ public class Display extends Canvas {
 		shoot = newShoot;
 	}
 	
+	// Returns Score object with the highest score value in the highScores ArrayList
 	public Score getHighestScore() {
 		Score max = new Score("MIN", Long.MIN_VALUE);
 		
