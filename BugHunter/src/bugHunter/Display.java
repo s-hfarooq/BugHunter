@@ -326,12 +326,17 @@ public class Display extends Canvas {
 			}
 			
 			if(noEnemies) {
-				runGame = false;
 				currentScore += 500;
 				over = "YOU WON!";
 				
 				level++;
-				
+				createObjects();
+				try {
+					gameRun();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		

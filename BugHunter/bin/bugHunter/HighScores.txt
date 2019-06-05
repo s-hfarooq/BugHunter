@@ -1,3 +1,6 @@
 Player1 100
 Player2 0
 Player3 100
+Player4 0
+Player5 200
+Player6 0
