@@ -8,12 +8,12 @@ Hassan Farooq, Andrew Balaschak
 
 <br/><br/>
 
-![Start screen](Screenshots/start.PNG)
+![Start screen](images/start.PNG)
 
 <br/><br/>
 
-![Game](Screenshots/main.PNG)
+![Game](images/main.PNG)
 
 <br/><br/>
 
-![End screen](Screenshots/end.PNG)
+![End screen](images/end.PNG)
