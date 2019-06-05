@@ -8,4 +8,8 @@ Hassan Farooq, Andrew Balaschak
 
 <br/><br/>
 
-![Screenshot](Screenshot.PNG)
+![Main screen](main.png)
+
+<br/><br/>
+
+![End screen](end.png)

@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.image.BufferStrategy;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class Display extends Canvas {
 	
@@ -40,7 +42,7 @@ public class Display extends Canvas {
 	private final String POWERUP_IMAGE = "src/bugHunter/PowerUp.png";	// File location for power up image
 	private final String SCORE_FILE = "src/bugHunter/HighScores.txt";	// File location for high scores
 	private final int SCALE = 70;										// Scale factor for window
-	private final double POWERUP_CHANCE = 0.0005;						// Chance per frame that a power up will appear
+	private final double POWERUP_CHANCE = 0.0001;						// Chance per frame that a power up will appear
 	
 	// Instance variables
 	private boolean left;
@@ -50,6 +52,7 @@ public class Display extends Canvas {
 	private long currentScore;
 	private int level;
 	private int timeBetweenShots;
+	private int bulletSpeed;
 	
 	private double delayPerFrame;
 	
@@ -60,6 +63,8 @@ public class Display extends Canvas {
 	private ArrayList<ArrayList<Enemy>> enemies;
 	private ArrayList<Score> highScores;
 	private BufferStrategy bS;
+	
+	private JPanel panel;
 	
 	// Display constructor - creates the layout and defines characteristics of the window
 	public Display() {
@@ -72,6 +77,7 @@ public class Display extends Canvas {
 		currentScore = 0;
 		level = 1;
 		timeBetweenShots = 1200;
+		bulletSpeed = 4;
 		delayPerFrame = 5.0;
 		
 		playerBullets = new ArrayList<Bullet>();
@@ -82,7 +88,7 @@ public class Display extends Canvas {
 		
 		// Creates window, defines characteristics
 		JFrame frame = new JFrame(NAME);
-		JPanel panel = (JPanel) frame.getContentPane();
+		panel = (JPanel) frame.getContentPane();
 		Dimension size = new Dimension(16 * SCALE, 9 * SCALE);
 		panel.setPreferredSize(size);
 		
@@ -144,7 +150,7 @@ public class Display extends Canvas {
 		
 		int frames = 0;
 		long firstTime = System.currentTimeMillis();
-		
+
 		while(runGame) {
 			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
@@ -254,7 +260,7 @@ public class Display extends Canvas {
 			// Shoot if space pressed and enough time has passed since the previous shot
 			long currTime = System.currentTimeMillis();
 			if(shoot && currTime - firstTime > timeBetweenShots) {
-				shootBullet(bulletImg, player, -4, playerBullets);
+				shootBullet(bulletImg, player, -bulletSpeed, playerBullets);
 				shoot = !shoot;
 				firstTime = currTime;
 			}
@@ -273,6 +279,17 @@ public class Display extends Canvas {
 				e.printStackTrace();
 			}
 		}
+		
+		// I don't know why, but this is needed to display the end screen
+		Graphics2D g = (Graphics2D) bS.getDrawGraphics();
+		g.setColor(Color.white);
+		g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
+		//g.dispose();
+		JTextField tF = new JTextField(8);
+		panel.add(tF);
+		setVisible(true);
+		g.dispose();
+		bS.show();
 	}
 	
 	// Creates a new Bullet object and adds it to the bullets ArrayList
@@ -296,7 +313,7 @@ public class Display extends Canvas {
 		while(enemyBullets.size() < max) {				
 			// Have a random enemy shoot the bullets
 			int randEnemy = (int)(Math.random() * enemies.get(lowest).size());
-			shootBullet(bulletImg, enemies.get(lowest).get(randEnemy), 4, enemyBullets);
+			shootBullet(bulletImg, enemies.get(lowest).get(randEnemy), bulletSpeed, enemyBullets);
 		}
 		
 		// Draw and move enemy bullets
@@ -340,7 +357,6 @@ public class Display extends Canvas {
 	
 	// Exit game loop when player dies / exit game loop when all enemies are dead
 	public void checkEndGame() {
-		String over = "GAME OVER";
 		boolean isOver = false;
 		if(player.isDead()) {
 			runGame = false;
@@ -355,12 +371,15 @@ public class Display extends Canvas {
 			// Move onto next round
 			if(noEnemies) {
 				currentScore += 500;
-				over = "YOU WON!";
 				
 				// Speeds up game every round
 				delayPerFrame -= 0.2;
 				if(delayPerFrame < 0.3)
 					delayPerFrame = 0.3;
+				
+				// Speeds up bullets every other round
+				if((level + 1) % 2 == 0 && bulletSpeed < 15)
+					bulletSpeed++;
 				
 				level++;
 				createObjects();
@@ -379,20 +398,25 @@ public class Display extends Canvas {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
+			System.out.println("isover1");
+
+			// Display end screen
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
 			g.setColor(Color.black);
 			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
-			
-			// Display end screen
+
 			g.setColor(Color.white);
 			String score = "Final score: " + currentScore;
 			Score sHigh = getHighestScore();
 			String highScore = "High score - Name: " + sHigh.getName() + ", Score: " + sHigh.getScore();
+			String over = "GAME OVER!";
 			g.drawString(over, (getSize().width - g.getFontMetrics().stringWidth(over)) / 2, (getSize().height / 2) - 25);			
 			g.drawString(score, (getSize().width - g.getFontMetrics().stringWidth(score)) / 2, getSize().height / 2);
 			g.drawString(highScore, (getSize().width - g.getFontMetrics().stringWidth(highScore)) / 2, (getSize().height / 2) + 25);
-
+			
+			g.dispose();
+			bS.show();
+			
 			g.dispose();
 			bS.show();
 		}
