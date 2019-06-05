@@ -42,6 +42,7 @@ public class Display extends Canvas {
 	private boolean shoot;
 	private boolean runGame;
 	private long currentScore;
+	private int level;
 	
 	private double delayPerFrame;
 	
@@ -61,6 +62,7 @@ public class Display extends Canvas {
 		runGame = true;
 		
 		currentScore = 0;
+		level = 1;
 		delayPerFrame = 5.0;
 		
 		playerBullets = new ArrayList<Bullet>();
@@ -146,8 +148,10 @@ public class Display extends Canvas {
 			g.setColor(Color.white);
 			String lives = "Lives: " + player.getHP();
 			String score = "Score: " + currentScore;
+			String lvl = "Level " + level;
 			g.drawString(lives, getSize().width - g.getFontMetrics().stringWidth(lives) - 25, 25);
 			g.drawString(score, getSize().width - g.getFontMetrics().stringWidth(score) - 25, 50);
+			g.drawString(lvl, getSize().width - g.getFontMetrics().stringWidth(lvl) - 25, 75);
 			
 			// Draw and move enemies
 			boolean first = true;
@@ -310,9 +314,10 @@ public class Display extends Canvas {
 	// Exit game loop when player dies / exit game loop when all enemies are dead
 	public void checkEndGame() {
 		String over = "GAME OVER";
-		
+		boolean isOver = false;
 		if(player.isDead()) {
 			runGame = false;
+			isOver = true;
 		} else {
 			boolean noEnemies = true;
 			for(int i = 0; i < enemies.size(); i++) {
@@ -324,10 +329,13 @@ public class Display extends Canvas {
 				runGame = false;
 				currentScore += 500;
 				over = "YOU WON!";
+				
+				level++;
+				
 			}
 		}
 		
-		if(!runGame) {
+		if(isOver) {
 			// Save scores to file
 			try {
 				saveScores();
