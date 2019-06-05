@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 import javax.sound.sampled.AudioInputStream;
@@ -48,6 +49,7 @@ public class Display extends Canvas {
 	private boolean left;
 	private boolean right;
 	private boolean shoot;
+	private boolean esc;
 	private boolean runGame;
 	private long currentScore;
 	private int level;
@@ -72,6 +74,7 @@ public class Display extends Canvas {
 		left = false;
 		right = false;
 		shoot = false;
+		esc = false;
 		runGame = true;
 		
 		currentScore = 0;
@@ -131,7 +134,7 @@ public class Display extends Canvas {
 	
 	// Game loop - updates the display and moves everything
 	public void gameRun() throws FileNotFoundException {
-		// Single CharacterImg object created for all bullet objects
+		// Single CharacterImg object created for objects
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		CharacterImg bulletImg = new CharacterImg(toolkit.getImage(BULLET_IMAGE));
 		CharacterImg playerRight = new CharacterImg(toolkit.getImage(PLAYER_RIGHT));
@@ -139,18 +142,12 @@ public class Display extends Canvas {
 		CharacterImg playerCenter = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
 		CharacterImg powerupImg = new CharacterImg(toolkit.getImage(POWERUP_IMAGE));
 		
-		// Create list of high scores
-		File scores = new File(SCORE_FILE);
-		Scanner fileScan = new Scanner(scores);
-		
-		while(fileScan.hasNext())
-			highScores.add(new Score(fileScan.next(), fileScan.nextLong()));
-		
-		fileScan.close();
+		createHighScoreList();
+		startScreen();
 		
 		int frames = 0;
 		long firstTime = System.currentTimeMillis();
-
+				
 		while(runGame) {
 			// Sets up the graphics to be displayed
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
@@ -250,6 +247,14 @@ public class Display extends Canvas {
 				}
 			}
 			
+			while(!esc) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			// Create enemy bullets and check for collisions with the player
 			enemyShoot(bulletImg, g);
 			
@@ -279,17 +284,6 @@ public class Display extends Canvas {
 				e.printStackTrace();
 			}
 		}
-		
-		// I don't know why, but this is needed to display the end screen
-		Graphics2D g = (Graphics2D) bS.getDrawGraphics();
-		g.setColor(Color.white);
-		g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
-		//g.dispose();
-		JTextField tF = new JTextField(8);
-		panel.add(tF);
-		setVisible(true);
-		g.dispose();
-		bS.show();
 	}
 	
 	// Creates a new Bullet object and adds it to the bullets ArrayList
@@ -398,28 +392,47 @@ public class Display extends Canvas {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			System.out.println("isover1");
-
+			
 			// Display end screen
-			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
-			g.setColor(Color.black);
-			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
-
-			g.setColor(Color.white);
-			String score = "Final score: " + currentScore;
-			Score sHigh = getHighestScore();
-			String highScore = "High score - Name: " + sHigh.getName() + ", Score: " + sHigh.getScore();
-			String over = "GAME OVER!";
-			g.drawString(over, (getSize().width - g.getFontMetrics().stringWidth(over)) / 2, (getSize().height / 2) - 25);			
-			g.drawString(score, (getSize().width - g.getFontMetrics().stringWidth(score)) / 2, getSize().height / 2);
-			g.drawString(highScore, (getSize().width - g.getFontMetrics().stringWidth(highScore)) / 2, (getSize().height / 2) + 25);
-			
-			g.dispose();
-			bS.show();
-			
-			g.dispose();
-			bS.show();
+			while(true) {
+				Graphics2D g = (Graphics2D) bS.getDrawGraphics();
+				g.setColor(Color.black);
+				g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
+	
+				g.setColor(Color.white);
+				String score = "Final score: " + currentScore;
+				String over = "GAME OVER!";
+				String high = "HIGH SCORES";
+	
+				g.drawString(over, (getSize().width - g.getFontMetrics().stringWidth(over)) / 2, (getSize().height / 2) - 25);		
+				g.drawString(score, (getSize().width - g.getFontMetrics().stringWidth(score)) / 2, getSize().height / 2);
+				g.drawString(high, (getSize().width - g.getFontMetrics().stringWidth(high)) / 2, (getSize().height / 2) + 50);
+				
+				// Display high scores
+				int scoresShown = 0;
+				Collections.sort(highScores);
+				while(highScores.size() > scoresShown && scoresShown < 5) {
+					String highScore = (1 + scoresShown) + " - " + highScores.get(scoresShown).getName() + ": " + highScores.get(scoresShown).getScore();
+					g.drawString(highScore, (getSize().width - g.getFontMetrics().stringWidth(highScore)) / 2, (getSize().height / 2) + (25 * (scoresShown + 3)));
+					scoresShown++;
+				}
+				
+				// Update view
+				g.dispose();
+				bS.show();
+			}
 		}
+	}
+	
+	// Creates the ArrayList of high scores
+	public void createHighScoreList() throws FileNotFoundException {
+		File scores = new File(SCORE_FILE);
+		Scanner fileScan = new Scanner(scores);
+		
+		while(fileScan.hasNext())
+			highScores.add(new Score(fileScan.next(), fileScan.nextLong()));
+		
+		fileScan.close();
 	}
 	
 	// Save high scores to file
@@ -432,6 +445,35 @@ public class Display extends Canvas {
 			writer.println(highScores.get(i).toString());
 		
 		writer.close();
+	}
+	
+	// Creates a start screen so the game doesn't jump directly into gameplay
+	public void startScreen() {
+		while(!esc) {
+			// Create graphics for start screen
+			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
+			
+			g.setColor(Color.black);
+			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
+			g.setColor(Color.white);
+			
+			String authors = "Hassan Farooq, Andrew Balacshak";
+			String start = "PRESS ESC TO START";
+			g.drawString(NAME, (getSize().width - g.getFontMetrics().stringWidth(NAME)) / 2, 125);
+			g.drawString(authors, (getSize().width - g.getFontMetrics().stringWidth(authors)) / 2, 175);
+			g.drawString(start, (getSize().width - g.getFontMetrics().stringWidth(start)) / 2, (getSize().height / 2) + 50);
+
+			// Update view
+			g.dispose();
+			bS.show();
+			
+			// Delay between frames
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	// Alters left boolean when the left arrow key is pressed or let go
@@ -449,15 +491,7 @@ public class Display extends Canvas {
 		shoot = newShoot;
 	}
 	
-	// Returns Score object with the highest score value in the highScores ArrayList
-	public Score getHighestScore() {
-		Score max = new Score("MIN", Long.MIN_VALUE);
-		
-		for(int i = 0; i < highScores.size(); i++) {
-			if(highScores.get(i).getScore() > max.getScore())
-				max = highScores.get(i);
-		}
-		
-		return max;
+	public void esc(boolean newEsc) {
+		esc = newEsc;
 	}
 }

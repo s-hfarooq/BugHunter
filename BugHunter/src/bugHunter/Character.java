@@ -2,7 +2,7 @@ package bugHunter;
 
 import java.awt.Graphics;
 
-public class Character {
+public abstract class Character {
 	
 	// Class constants
 	private final int COLLIDE_LIMIT = 25;	// Range the two images must be within to count as a collision
