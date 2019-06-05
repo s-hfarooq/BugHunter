@@ -17,6 +17,11 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -32,9 +37,10 @@ public class Display extends Canvas {
 	private final String PLAYER_RIGHT = "src/bugHunter/ShipR.png";		// File location for the player image leaning right
 	private final String PLAYER_LEFT = "src/bugHunter/ShipL.png";		// File location for the player image leaning left
 	private final String ICON_IMAGE = "src/bugHunter/Ship.png";			// File location for icon image
+	private final String POWERUP_IMAGE = "src/bugHunter/PowerUp.png";	// File location for power up image
 	private final String SCORE_FILE = "src/bugHunter/HighScores.txt";	// File location for high scores
-	private final double TIME_BETWEEN_SHOTS = 1200;						// Delay between shooting bullets by the player (in ms)
 	private final int SCALE = 70;										// Scale factor for window
+	private final double POWERUP_CHANCE = 0.0005;						// Chance per frame that a power up will appear
 	
 	// Instance variables
 	private boolean left;
@@ -43,12 +49,14 @@ public class Display extends Canvas {
 	private boolean runGame;
 	private long currentScore;
 	private int level;
+	private int timeBetweenShots;
 	
 	private double delayPerFrame;
 	
 	private Player player;
 	private ArrayList<Bullet> playerBullets;
 	private ArrayList<Bullet> enemyBullets;
+	private ArrayList<Powerup> powerups;
 	private ArrayList<ArrayList<Enemy>> enemies;
 	private ArrayList<Score> highScores;
 	private BufferStrategy bS;
@@ -63,10 +71,12 @@ public class Display extends Canvas {
 		
 		currentScore = 0;
 		level = 1;
+		timeBetweenShots = 1200;
 		delayPerFrame = 5.0;
 		
 		playerBullets = new ArrayList<Bullet>();
 		enemyBullets = new ArrayList<Bullet>();
+		powerups = new ArrayList<Powerup>();
 		enemies = new ArrayList<ArrayList<Enemy>>();
 		highScores = new ArrayList<Score>();
 		
@@ -121,6 +131,7 @@ public class Display extends Canvas {
 		CharacterImg playerRight = new CharacterImg(toolkit.getImage(PLAYER_RIGHT));
 		CharacterImg playerLeft = new CharacterImg(toolkit.getImage(PLAYER_LEFT));
 		CharacterImg playerCenter = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
+		CharacterImg powerupImg = new CharacterImg(toolkit.getImage(POWERUP_IMAGE));
 		
 		// Create list of high scores
 		File scores = new File(SCORE_FILE);
@@ -215,6 +226,24 @@ public class Display extends Canvas {
 				}
 			}
 			
+			// Power up to reduce time between shots by half
+			double randPowerUp = Math.random();
+			if(randPowerUp < POWERUP_CHANCE) {
+				powerups.add(new Powerup(this, powerupImg, (int)(Math.random() * (getSize().width - 50)) + 50, -50));
+				powerups.get(powerups.size() - 1).changeVelocity(0, 1);
+			}
+			
+			for(int i = powerups.size() - 1; i > -1; i--) {
+				Powerup current = powerups.get(i);
+				current.move();
+				current.draw(g);
+				if(current.collide(player)) {
+					if(timeBetweenShots > 100)
+						timeBetweenShots /= 2;
+					powerups.remove(i);
+				}
+			}
+			
 			// Create enemy bullets and check for collisions with the player
 			enemyShoot(bulletImg, g);
 			
@@ -224,7 +253,7 @@ public class Display extends Canvas {
 			
 			// Shoot if space pressed and enough time has passed since the previous shot
 			long currTime = System.currentTimeMillis();
-			if(shoot && currTime - firstTime > TIME_BETWEEN_SHOTS) {
+			if(shoot && currTime - firstTime > timeBetweenShots) {
 				shootBullet(bulletImg, player, -4, playerBullets);
 				shoot = !shoot;
 				firstTime = currTime;
@@ -259,8 +288,6 @@ public class Display extends Canvas {
 		int lowest = enemies.size() - 1;
 		while(lowest > -1 && enemies.get(lowest).size() == 0)
 			lowest--;
-		
-		System.out.println(lowest);
 		
 		int max = enemies.get(lowest).size();
 		if(max > 5)
@@ -325,16 +352,21 @@ public class Display extends Canvas {
 					noEnemies = false;
 			}
 			
+			// Move onto next round
 			if(noEnemies) {
 				currentScore += 500;
 				over = "YOU WON!";
+				
+				// Speeds up game every round
+				delayPerFrame -= 0.2;
+				if(delayPerFrame < 0.3)
+					delayPerFrame = 0.3;
 				
 				level++;
 				createObjects();
 				try {
 					gameRun();
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
