@@ -4,31 +4,18 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Shape;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.image.BufferStrategy;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 public class Display extends Canvas {
 	
@@ -163,9 +150,17 @@ public class Display extends Canvas {
 			String lives = "Lives: " + player.getHP();
 			String score = "Score: " + currentScore;
 			String lvl = "Level " + level;
+			
+			// Cooldown timer display
+			long timeLeft = timeBetweenShots + firstTime - System.currentTimeMillis();
+			if(timeLeft < 0)
+				timeLeft = 0;
+			String timeShots = "Cooldown: " + timeLeft;
+			
 			g.drawString(lives, getSize().width - g.getFontMetrics().stringWidth(lives) - 25, 25);
 			g.drawString(score, getSize().width - g.getFontMetrics().stringWidth(score) - 25, 50);
 			g.drawString(lvl, getSize().width - g.getFontMetrics().stringWidth(lvl) - 25, 75);
+			g.drawString(timeShots, getSize().width - g.getFontMetrics().stringWidth(timeShots) - 25, 100);
 			
 			// Draw and move enemies
 			boolean first = true;
@@ -232,7 +227,7 @@ public class Display extends Canvas {
 			// Power up to reduce time between shots by half
 			double randPowerUp = Math.random();
 			if(randPowerUp < POWERUP_CHANCE) {
-				powerups.add(new Powerup(this, powerupImg, (int)(Math.random() * (getSize().width - 50)) + 50, -50));
+				powerups.add(new Powerup(this, powerupImg, (int)(Math.random() * (getSize().width - 50)) + 50, -50, (int)(Math.random() * 2) + 1));
 				powerups.get(powerups.size() - 1).changeVelocity(0, 1);
 			}
 			
@@ -241,7 +236,9 @@ public class Display extends Canvas {
 				current.move();
 				current.draw(g);
 				if(current.collide(player)) {
-					if(timeBetweenShots > 100)
+					if(current.getType() == 1 && player.getHP() < 10)
+						player.increaseHP();
+					else if(current.getType() == 2 && timeBetweenShots > 100)
 						timeBetweenShots /= 2;
 					powerups.remove(i);
 				}

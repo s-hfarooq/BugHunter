@@ -7,3 +7,10 @@ Player6 500
 Player7 300
 Player8 100
 Player9 300
+Player10 0
+Player11 0
+Player12 0
+Player13 0
+Player14 0
+Player15 800
+Player16 100

@@ -67,6 +67,11 @@ public abstract class Character {
 			isDead = true;
 	}
 	
+	// Increase the total health by one
+	public void increaseHP() {
+		health++;
+	}
+	
 	// Sets the Character to 0 HP
 	public void kill() {
 		health = 0;
