@@ -1,5 +1,5 @@
 /*
- * Hassan Farooq, Andrew Balaschak
+ * Andrew Balaschak, Hassan Farooq
  * 2018-2019 APCS P.5 Semester 2 Final
  * 
  * Display Class - creates a window, draws everything in it, also handles all object movement and collision detection

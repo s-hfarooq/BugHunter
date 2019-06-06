@@ -1,5 +1,5 @@
 /*
- * Hassan Farooq, Andrew Balaschak
+ * Andrew Balaschak, Hassan Farooq
  * 2018-2019 APCS P.5 Semester 2 Final
  * 
  * RunGame Class - creates an instance of Display, used to run the program
