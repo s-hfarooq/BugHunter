@@ -171,10 +171,10 @@ public class Display extends Canvas {
 				timeLeft = 0;
 			String timeShots = "Cooldown: " + timeLeft;
 			
-			g.drawString(lives, getSize().width - g.getFontMetrics().stringWidth(lives) - 25, 25);
-			g.drawString(score, getSize().width - g.getFontMetrics().stringWidth(score) - 25, 50);
-			g.drawString(lvl, getSize().width - g.getFontMetrics().stringWidth(lvl) - 25, 75);
-			g.drawString(timeShots, getSize().width - g.getFontMetrics().stringWidth(timeShots) - 25, 100);
+			g.drawString(lives, 25, 25);
+			g.drawString(score, 3 * (getSize().width - g.getFontMetrics().stringWidth(score)) / 4, 25);
+			g.drawString(lvl, (getSize().width - g.getFontMetrics().stringWidth(lvl)) / 4, 25);
+			g.drawString(timeShots, getSize().width - g.getFontMetrics().stringWidth(timeShots) - 25, 25);
 			
 			// Move enemies right, left, or down
 			moveEnemies(frames, g);
