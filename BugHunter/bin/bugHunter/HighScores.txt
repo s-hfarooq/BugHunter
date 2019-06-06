@@ -23,3 +23,6 @@ Player22 500
 Player23 200
 Player24 100
 Player25 1700
+Player26 0
+Player27 0
+Player28 0
