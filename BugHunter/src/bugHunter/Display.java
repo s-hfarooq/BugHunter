@@ -130,9 +130,9 @@ public class Display extends Canvas {
 			for (int c = 0; c < 10; c++) {
 				double randAmnt = Math.random();
 				if(randAmnt < 0.95)
-					enemies.get(r).add(new Enemy(this, enemyImg, (70 * c) + 15, (70 * r) + 15, 0, 0, 1));
+					enemies.get(r).add(new Enemy(this, enemyImg, (70 * c) + 15, (70 * r) + 15, 0, 0, 1, 1));
 				else
-					enemies.get(r).add(new Enemy(this, enemyImg2, (70 * c) + 15, (70 * r) + 15, 0, 0, 3));
+					enemies.get(r).add(new Enemy(this, enemyImg2, (70 * c) + 15, (70 * r) + 15, 0, 0, 3, 2));
 			}
 		}
 		
@@ -362,7 +362,13 @@ public class Display extends Canvas {
 		// Have a random enemies shoot bullets (up to 5)
 		while(enemyBullets.size() < max) {				
 			int randEnemy = (int)(Math.random() * enemies.get(lowest).size());
-			shootBullet(bulletImg, enemies.get(lowest).get(randEnemy), bulletSpeed, enemyBullets);
+			
+			// Faster bullet speed for more powerful enemies
+			int bSpeed = bulletSpeed;
+			if(enemies.get(lowest).get(randEnemy).getType() == 2)
+				bSpeed *= 3;
+			
+			shootBullet(bulletImg, enemies.get(lowest).get(randEnemy), bSpeed, enemyBullets);
 		}
 		
 		// Draw and move enemy bullets

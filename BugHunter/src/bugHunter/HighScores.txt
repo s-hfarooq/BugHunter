@@ -27,3 +27,4 @@ Player26 0
 Player27 0
 Player28 0
 Player29 200
+Player30 0
