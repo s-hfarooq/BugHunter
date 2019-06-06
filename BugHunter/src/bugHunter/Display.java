@@ -1,5 +1,5 @@
 /*
- * Andrew Balaschak, Hassan Farooq
+ * Hassan Farooq, Andrew Balaschak
  * 2018-2019 APCS P.5 Semester 2 Final
  * 
  * Display Class - creates a window, draws everything in it, also handles all object movement and collision detection
@@ -29,6 +29,7 @@ public class Display extends Canvas {
 	// Class constants
 	private final String NAME = "Bug Hunter v0.1.0";					// Name of program
 	private final String BUG_IMAGE = "src/bugHunter/Bug.png";			// File location for bug image
+	private final String BUG2_IMAGE = "src/bugHunter/Bug_2.png";		// File location for the alternative bug image
 	private final String BULLET_IMAGE = "src/bugHunter/Bullet.png";		// File location for bullet image
 	private final String PLAYER_IMAGE = "src/bugHunter/Ship.png";		// File location for player image
 	private final String PLAYER_RIGHT = "src/bugHunter/ShipR.png";		// File location for the player image leaning right
@@ -118,14 +119,21 @@ public class Display extends Canvas {
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		CharacterImg playerImg = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
 		CharacterImg enemyImg = new CharacterImg(toolkit.getImage(BUG_IMAGE));
+		CharacterImg enemyImg2 = new CharacterImg(toolkit.getImage(BUG2_IMAGE));
+
 		player = new Player(this, playerImg, 20);
 		
 		// Creates enemies
 		for(int r = 0; r < 3; r++) {
 			enemies.add(new ArrayList<Enemy>());
 			
-			for (int c = 0; c < 10; c++)
-				enemies.get(r).add(new Enemy(this, enemyImg, (70 * c) + 15, (70 * r) + 15, 0, 0));
+			for (int c = 0; c < 10; c++) {
+				double randAmnt = Math.random();
+				if(randAmnt < 0.95)
+					enemies.get(r).add(new Enemy(this, enemyImg, (70 * c) + 15, (70 * r) + 15, 0, 0, 1));
+				else
+					enemies.get(r).add(new Enemy(this, enemyImg2, (70 * c) + 15, (70 * r) + 15, 0, 0, 3));
+			}
 		}
 		
 		createHighScoreList();
