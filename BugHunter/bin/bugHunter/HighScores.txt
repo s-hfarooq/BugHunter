@@ -19,3 +19,7 @@ Player18 0
 Player19 0
 Player20 0
 Player21 100
+Player22 500
+Player23 200
+Player24 100
+Player25 1700
