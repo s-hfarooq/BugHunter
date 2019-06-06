@@ -476,6 +476,7 @@ public class Display extends Canvas {
 	
 	// Creates a start screen so the game doesn't jump directly into gameplay
 	public void startScreen() {
+		int frame = 0;
 		while(!enter) {
 			// Create graphics for start screen
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
@@ -486,17 +487,25 @@ public class Display extends Canvas {
 			
 			String authors = "Hassan Farooq, Andrew Balacshak";
 			String start = "PRESS ENTER TO START";
-			g.drawString(NAME, (getSize().width - g.getFontMetrics().stringWidth(NAME)) / 2, 125);
+			String crtls = "Controls: left/right arrow keys to move, space to shoot, escape to pause";
+			g.drawString(NAME, (getSize().width - g.getFontMetrics().stringWidth(NAME)) / 2, getSize().height / 5);
 			g.drawString(authors, (getSize().width - g.getFontMetrics().stringWidth(authors)) / 2, 175);
-			g.drawString(start, (getSize().width - g.getFontMetrics().stringWidth(start)) / 2, (getSize().height / 2) + 50);
+			
+			// Have start phrase blink
+			if(frame % 10 != 0)
+				g.drawString(start, (getSize().width - g.getFontMetrics().stringWidth(start)) / 2, (getSize().height / 2) + 50);
+			
+			g.drawString(crtls, (getSize().width - g.getFontMetrics().stringWidth(crtls)) / 2, 4 * getSize().height / 5);
 
 			// Update view
 			g.dispose();
 			bS.show();
 			
+			frame++;
+			
 			// Delay between frames
 			try {
-				Thread.sleep(100);
+				Thread.sleep(150);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -504,7 +513,7 @@ public class Display extends Canvas {
 	}
 	
 	// Creates the ending screen with the user's score and top 5 scores achieved
-	public void endScreen() {
+	public void endScreen() throws FileNotFoundException {
 		while(true) {
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
 			g.setColor(Color.black);
