@@ -13,12 +13,12 @@ Left/right arrow keys to move, space to shoot, escape to start and pause
 
 <br/><br/>
 
-![Start screen](images/start2.PNG)
+![Start screen](images/startScreen.PNG)
 
 <br/><br/>
 
-![Game](images/main2.PNG)
+![Game](images/mainScreen.PNG)
 
 <br/><br/>
 
-![End screen](images/end2.PNG)
+![End screen](images/endScreen.PNG)
