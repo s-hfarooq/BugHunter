@@ -63,8 +63,6 @@ public class Display extends Canvas {
 	private ArrayList<Score> highScores;								// ArrayList of all scores from SCORE_FILE
 	private BufferStrategy bS;											// Used to draw images/text on the window
 	
-	private JPanel panel;												// Panel which everything is drawn onto
-	
 	// Display constructor - creates the layout and defines characteristics of the window
 	public Display() {
 		// Set instance variables
@@ -89,7 +87,7 @@ public class Display extends Canvas {
 		
 		// Creates window, defines characteristics
 		JFrame frame = new JFrame(NAME);
-		panel = (JPanel) frame.getContentPane();
+		JPanel panel = (JPanel) frame.getContentPane();
 		Dimension size = new Dimension(16 * SCALE, 9 * SCALE);
 		panel.setPreferredSize(size);
 		
