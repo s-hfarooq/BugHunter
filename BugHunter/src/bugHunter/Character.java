@@ -1,3 +1,10 @@
+/*
+ * Hassan Farooq, Andrew Balaschak
+ * 2018-2019 APCS P.5 Semester 2 Final
+ * 
+ * Character Class - used to create Characters to display on the window
+ */
+
 package bugHunter;
 
 import java.awt.Graphics;
@@ -8,14 +15,14 @@ public abstract class Character {
 	private final int COLLIDE_LIMIT = 25;	// Range the two images must be within to count as a collision
 	
 	// Instance variables
-	private Display disp;
-	private CharacterImg img;
-	private int x;
-	private int y;
-	private int xVelocity;
-	private int yVelocity;
-	private int health;
-	private boolean isDead;
+	private Display disp;					// Display object that creates the window
+	private CharacterImg img;				// Current characters image object
+	private int x;							// Current X location
+	private int y;							// Current Y location
+	private int xVelocity;					// Current X velocity
+	private int yVelocity;					// Current Y velocity
+	private int health;						// Current health
+	private boolean isDead;					// True if health is 0, false otherwise
 	
 	// Constructor
 	public Character(Display display, CharacterImg image, int locX, int locY, int velX, int velY, int totalHealth) {
@@ -91,6 +98,7 @@ public abstract class Character {
 		return hit;
 	}
 	
+	// Moves the character to the bottom of the display (useful when window gets resized)
 	public void moveToBottom() {
 		y = disp.getSize().height - 70;
 	}

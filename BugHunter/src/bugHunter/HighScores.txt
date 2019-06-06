@@ -13,5 +13,13 @@ Player12 0
 Player13 0
 Player14 0
 Player15 800
-Player16 100
-Player17 700
+Player16 200
+Player17 2500
+Player18 0
+Player19 0
+Player20 0
+Player21 100
+Player22 500
+Player23 200
+Player24 100
+Player25 1700

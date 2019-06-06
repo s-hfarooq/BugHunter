@@ -1,3 +1,10 @@
+/*
+ * Hassan Farooq, Andrew Balaschak
+ * 2018-2019 APCS P.5 Semester 2 Final
+ * 
+ * Display Class - creates a window, draws everything in it, also handles all object movement and collision detection
+ */
+
 package bugHunter;
 
 import java.awt.Canvas;
@@ -20,7 +27,7 @@ import javax.swing.JPanel;
 public class Display extends Canvas {
 	
 	// Class constants
-	private final String NAME = "Bug Hunter v0.0.1";					// Name of program
+	private final String NAME = "Bug Hunter v0.1.0";					// Name of program
 	private final String BUG_IMAGE = "src/bugHunter/Bug.png";			// File location for bug image
 	private final String BULLET_IMAGE = "src/bugHunter/Bullet.png";		// File location for bullet image
 	private final String PLAYER_IMAGE = "src/bugHunter/Ship.png";		// File location for player image
@@ -33,27 +40,27 @@ public class Display extends Canvas {
 	private final double POWERUP_CHANCE = 0.0001;						// Chance per frame that a power up will appear
 	
 	// Instance variables
-	private boolean left;
-	private boolean right;
-	private boolean shoot;
-	private boolean esc;
-	private boolean runGame;
-	private long currentScore;
-	private int level;
-	private int timeBetweenShots;
-	private int bulletSpeed;
+	private boolean left;												// True if left arrow key currently pressed, false otherwise
+	private boolean right;												// True if right arrow key currently pressed, false otherwise
+	private boolean shoot;												// True if space bar currently pressed, false otherwise
+	private boolean esc;												// Toggles when escape key pressed
+	private boolean runGame;											// True if the player is alive and is in the main game
+	private long currentScore;											// Current score for the player (+100 for every enemy killed, +500 for every level cleared)
+	private int level;													// Current level (increases whenever all enemies in the current stage die)
+	private int timeBetweenShots;										// Minimum cooldown for shooting by the player (decreases with powerups)
+	private int bulletSpeed;											// The speed that the bullets move (increases as levels increase)
 	
-	private double delayPerFrame;
+	private double delayPerFrame;										// Delay between drawing each frame (decrease to speed up all parts of the game)
 	
-	private Player player;
-	private ArrayList<Bullet> playerBullets;
-	private ArrayList<Bullet> enemyBullets;
-	private ArrayList<Powerup> powerups;
-	private ArrayList<ArrayList<Enemy>> enemies;
-	private ArrayList<Score> highScores;
-	private BufferStrategy bS;
+	private Player player;												// Player object
+	private ArrayList<Bullet> playerBullets;							// ArrayList of all bullets the player has shot and are within view of the window
+	private ArrayList<Bullet> enemyBullets;								// ArrayList of all bullets enemies have shot and are within view of the window
+	private ArrayList<Powerup> powerups;								// ArrayList of all powerups currently in view of the window
+	private ArrayList<ArrayList<Enemy>> enemies;						// ArrayList of ArrayList of enemies
+	private ArrayList<Score> highScores;								// ArrayList of all scores from SCORE_FILE
+	private BufferStrategy bS;											// Used to draw images/text on the window
 	
-	private JPanel panel;
+	private JPanel panel;												// Panel which everything is drawn onto
 	
 	// Display constructor - creates the layout and defines characteristics of the window
 	public Display() {
@@ -103,7 +110,7 @@ public class Display extends Canvas {
 	}
 	
 	// Creates character objects (player and enemies)
-	public void createObjects() {
+	public void createObjects() throws FileNotFoundException {
 		// Create a player image and object
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		CharacterImg playerImg = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
@@ -117,9 +124,15 @@ public class Display extends Canvas {
 			for (int c = 0; c < 10; c++)
 				enemies.get(r).add(new Enemy(this, enemyImg, (70 * c) + 15, (70 * r) + 15, 0, 0));
 		}
+		
+		createHighScoreList();
 	}
 	
-	// Game loop - updates the display and moves everything
+	/*
+	 * Game loop
+	 * Updates the display and is in charge of moving the player, enemies, bullets, and powerups
+	 * Main while loop runs until either the player dies or all the enemies have been killed
+	 */
 	public void gameRun() throws FileNotFoundException {
 		// Single CharacterImg object created for objects
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -129,7 +142,6 @@ public class Display extends Canvas {
 		CharacterImg playerCenter = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
 		CharacterImg powerupImg = new CharacterImg(toolkit.getImage(POWERUP_IMAGE));
 		
-		createHighScoreList();
 		startScreen();
 		
 		int frames = 0;
@@ -162,53 +174,8 @@ public class Display extends Canvas {
 			g.drawString(lvl, getSize().width - g.getFontMetrics().stringWidth(lvl) - 25, 75);
 			g.drawString(timeShots, getSize().width - g.getFontMetrics().stringWidth(timeShots) - 25, 100);
 			
-			// Draw and move enemies
-			boolean first = true;
-			for(int r = 0; r < enemies.size(); r++) {
-				for(int c = 0; c < enemies.get(r).size(); c++) {
-					Enemy current = enemies.get(r).get(c);
-					
-					// Start movement
-					if(frames == 0)
-						current.changeVelocity(1, 0);
-					
-					// Moves down
-					if(frames % 20 == 0)
-						current.changeVelocity(0, 1);
-					else if(current.getYVelocity() == 1)
-						current.changeVelocity(0, -1);
-					
-					// Moves left and right
-					if(frames % 5 == 0) {
-						if(current.getX() < 0 || current.getX() > getSize().width - 70)
-							current.flipX();
-					}
-					
-					// Lower enemy health when hit by bullet
-					for(int i = playerBullets.size() - 1; i > -1; i--) {
-						if(current.collide(playerBullets.get(i))) {
-							// Delete bullet and lower HP of current enemy
-							playerBullets.remove(i);
-							current.lowerHP();
-							currentScore += 100;
-							
-							// Delete enemy if it's dead
-							if(current.isDead())
-								enemies.get(r).remove(c);
-						}
-					}
-					
-					// Kill player if enemies collide with them
-					if(first && current.getY() > getSize().height - 70)
-						player.kill();
-					
-					// Apply movement
-					current.move();
-				
-					// Draw current enemy
-					current.draw(g);
-				}
-			}
+			// Move enemies right, left, or down
+			moveEnemies(frames, g);
 			
 			// Draw and move bullets from player
 			for(int i = playerBullets.size() - 1; i > -1; i--) {
@@ -224,33 +191,8 @@ public class Display extends Canvas {
 				}
 			}
 			
-			// Power up to reduce time between shots by half
-			double randPowerUp = Math.random();
-			if(randPowerUp < POWERUP_CHANCE) {
-				powerups.add(new Powerup(this, powerupImg, (int)(Math.random() * (getSize().width - 50)) + 50, -50, (int)(Math.random() * 2) + 1));
-				powerups.get(powerups.size() - 1).changeVelocity(0, 1);
-			}
-			
-			for(int i = powerups.size() - 1; i > -1; i--) {
-				Powerup current = powerups.get(i);
-				current.move();
-				current.draw(g);
-				if(current.collide(player)) {
-					if(current.getType() == 1 && player.getHP() < 10)
-						player.increaseHP();
-					else if(current.getType() == 2 && timeBetweenShots > 100)
-						timeBetweenShots /= 2;
-					powerups.remove(i);
-				}
-			}
-			
-			while(!esc) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			// Create power up
+			powerUp(powerupImg, g);
 			
 			// Create enemy bullets and check for collisions with the player
 			enemyShoot(bulletImg, g);
@@ -280,29 +222,135 @@ public class Display extends Canvas {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
+			// Pause game if escape key is pressed
+			while(esc) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
-	// Creates a new Bullet object and adds it to the bullets ArrayList
-	public void shootBullet(CharacterImg bulletImg, Character creator, int direction, ArrayList<Bullet> listToAdd) {
+	/*
+	 * Moves player if keys are being pressed
+	 * @param leftImg - this is the image for the left leaning player, passed in so multiple don't have to be created
+	 * @param rightImg - this is the image for the right leaning player, passed in so multiple don't have to be created
+	 * @param straightImg - this is the image for the straight player, passed in so multiple don't have to be created
+	 */
+	public void movePlayer(CharacterImg leftImg, CharacterImg rightImg, CharacterImg straightImg) {
+		if(left && player.getX() > 20) {
+			player.changeVelocity(-1, 0);
+			player.changeImg(leftImg);
+		} else if(right && player.getX() < getSize().width - 70) {
+			player.changeVelocity(1, 0);
+			player.changeImg(rightImg);
+		} else if(!left && player.getXVelocity() > 0) {
+			player.changeVelocity(-1, 0);
+			player.changeImg(straightImg);
+		} else if(!right && player.getXVelocity() < 0) {
+			player.changeVelocity(1, 0);
+			player.changeImg(straightImg);
+		}
+		player.move();
+	}
+	
+	/*
+	 * Moves enemies right, left, or down
+	 * Moves right until it hits the right side of display, then flips to left (and vice versa)
+	 * Moves down every 20th frame
+	 * Also checks if enemies have been hit by a bullet - lower health/kill them if hit
+	 * Kills player if the enemies get to low/collide with player
+	 * @param frames - number of frames that have been drawn, used to determine if enemies should move down slightly
+	 * @param g - the Graphics2D object that is displaying everything
+	 */
+	public void moveEnemies(int frames, Graphics2D g) {
+		// Draw and move enemies
+		for(int r = 0; r < enemies.size(); r++) {
+			for(int c = 0; c < enemies.get(r).size(); c++) {
+				Enemy current = enemies.get(r).get(c);
+				
+				// Start movement
+				if(frames == 0)
+					current.changeVelocity(1, 0);
+				
+				// Moves down
+				if(frames % 20 == 0)
+					current.changeVelocity(0, 1);
+				else if(current.getYVelocity() == 1)
+					current.changeVelocity(0, -1);
+				
+				// Moves left and right
+				if(frames % 5 == 0) {
+					if(current.getX() < 0 || current.getX() > getSize().width - 70)
+						current.flipX();
+				}
+				
+				// Lower enemy health when hit by bullet
+				for(int i = playerBullets.size() - 1; i > -1; i--) {
+					if(current.collide(playerBullets.get(i))) {
+						// Delete bullet and lower HP of current enemy
+						playerBullets.remove(i);
+						current.lowerHP();
+						currentScore += 100;
+						
+						// Delete enemy if it's dead
+						if(current.isDead())
+							enemies.get(r).remove(c);
+					}
+				}
+				
+				// Kill player if enemies collide with them
+				if(current.getY() > getSize().height - 125)
+					player.kill();
+				
+				// Apply movement
+				current.move();
+			
+				// Draw current enemy
+				current.draw(g);
+			}
+		}
+	}
+	
+	/*
+	 * Creates a new Bullet object and adds it to the bullets ArrayList
+	 * @param bulletImg - this is the image for the bullet, passed in so multiple don't have to be created
+	 * @param creator - used to determine location the new bullet should be at
+	 * @param xSpeed - used to set the X velocity of the bullet (- if going away from the player, + if going towards the player)
+	 * @param listToAdd - adds the new Bullet object to the correct ArrayList (either enemyBullets or playerBullets)
+	 */
+	public void shootBullet(CharacterImg bulletImg, Character creator, int xSpeed, ArrayList<Bullet> listToAdd) {
 		Bullet b = new Bullet(this, bulletImg, creator.getX(), creator.getY(), 0, 0);
-		b.changeVelocity(0, direction);
+		b.changeVelocity(0, xSpeed);
 		listToAdd.add(b);
 	}
 	
-	// Creates enemy bullets
+	/*
+	 * Creates and draws enemy bullets
+	 * Alters player health if hit by a bullet
+	 * @param bulletImg - this is the image for the bullet, passed in so multiple don't have to be created 
+	 * @param g - the Graphics2D object that is displaying everything
+	 */
 	public void enemyShoot(CharacterImg bulletImg, Graphics2D g) {
-		// Find lowest set of enemies		
-		int lowest = enemies.size() - 1;
-		while(lowest > -1 && enemies.get(lowest).size() == 0)
-			lowest--;
+		// Find lowest set of enemies
+		int lowest = 2;
+		if(enemies.get(2).size() == 0)
+			lowest = 1;
+		if(enemies.get(1).size() == 0)
+			lowest = 0;
 		
-		int max = enemies.get(lowest).size();
-		if(max > 5)
-			max = 5;
+		int max = 0;
+		if(enemies.size() > 0) {
+			max = enemies.get(lowest).size();
+			if(max > 5)
+				max = 5;
+		}
 		
+		// Have a random enemies shoot bullets (up to 5)
 		while(enemyBullets.size() < max) {				
-			// Have a random enemy shoot the bullets
 			int randEnemy = (int)(Math.random() * enemies.get(lowest).size());
 			shootBullet(bulletImg, enemies.get(lowest).get(randEnemy), bulletSpeed, enemyBullets);
 		}
@@ -325,29 +373,42 @@ public class Display extends Canvas {
 				player.lowerHP();
 				enemyBullets.remove(i);
 			}
-		}		
-	}
-	
-	// Moves player if keys are being pressed
-	public void movePlayer(CharacterImg leftImg, CharacterImg rightImg, CharacterImg straightImg) {
-		if(left && player.getX() > 20) {
-			player.changeVelocity(-1, 0);
-			player.changeImg(leftImg);
-		} else if(right && player.getX() < getSize().width - 70) {
-			player.changeVelocity(1, 0);
-			player.changeImg(rightImg);
-		} else if(!left && player.getXVelocity() > 0) {
-			player.changeVelocity(-1, 0);
-			player.changeImg(straightImg);
-		} else if(!right && player.getXVelocity() < 0) {
-			player.changeVelocity(1, 0);
-			player.changeImg(straightImg);
 		}
-		player.move();
 	}
 	
-	// Exit game loop when player dies / exit game loop when all enemies are dead
-	public void checkEndGame() {
+	/*
+	 * Creates a powerup randomly - based on the value of POWERUP_CHANCE
+	 * Draws powerups if any exist
+	 * @param powerupImg - this is the image for the powerup, passed in so multiple don't have to be created 
+	 * @param g - the Graphics2D object that is displaying everything
+	 */
+	public void powerUp(CharacterImg powerupImg, Graphics2D g) {
+		double randPowerUp = Math.random();
+		if(randPowerUp < POWERUP_CHANCE) {
+			powerups.add(new Powerup(this, powerupImg, (int)(Math.random() * (getSize().width - 50)) + 50, -50, (int)(Math.random() * 2) + 1));
+			powerups.get(powerups.size() - 1).changeVelocity(0, 1);
+		}
+		
+		for(int i = powerups.size() - 1; i > -1; i--) {
+			Powerup current = powerups.get(i);
+			current.move();
+			current.draw(g);
+			if(current.collide(player)) {
+				if(current.getType() == 1 && player.getHP() < 10)
+					player.increaseHP();
+				else if(current.getType() == 2 && timeBetweenShots > 100)
+					timeBetweenShots /= 2;
+				powerups.remove(i);
+			}
+		}
+	}
+	
+	/*
+	 * Exit the game loop when  either a player dies or when all enemies die
+	 * Creates a new instance of everything (with some changes) if the player is still alive (new level)
+	 * Loads end screen if the player died
+	 */
+	public void checkEndGame() throws FileNotFoundException {
 		boolean isOver = false;
 		if(player.isDead()) {
 			runGame = false;
@@ -374,11 +435,7 @@ public class Display extends Canvas {
 				
 				level++;
 				createObjects();
-				try {
-					gameRun();
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
+				gameRun();
 			}
 		}
 		
@@ -390,58 +447,9 @@ public class Display extends Canvas {
 				e.printStackTrace();
 			}
 			
-			// Display end screen
-			while(true) {
-				Graphics2D g = (Graphics2D) bS.getDrawGraphics();
-				g.setColor(Color.black);
-				g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
-	
-				g.setColor(Color.white);
-				String score = "Final score: " + currentScore;
-				String over = "GAME OVER!";
-				String high = "HIGH SCORES";
-	
-				g.drawString(over, (getSize().width - g.getFontMetrics().stringWidth(over)) / 2, (getSize().height / 2) - 25);		
-				g.drawString(score, (getSize().width - g.getFontMetrics().stringWidth(score)) / 2, getSize().height / 2);
-				g.drawString(high, (getSize().width - g.getFontMetrics().stringWidth(high)) / 2, (getSize().height / 2) + 50);
-				
-				// Display high scores
-				int scoresShown = 0;
-				Collections.sort(highScores);
-				while(highScores.size() > scoresShown && scoresShown < 5) {
-					String highScore = (1 + scoresShown) + " - " + highScores.get(scoresShown).getName() + ": " + highScores.get(scoresShown).getScore();
-					g.drawString(highScore, (getSize().width - g.getFontMetrics().stringWidth(highScore)) / 2, (getSize().height / 2) + (25 * (scoresShown + 3)));
-					scoresShown++;
-				}
-				
-				// Update view
-				g.dispose();
-				bS.show();
-			}
+			// Display end screen			
+			endScreen();
 		}
-	}
-	
-	// Creates the ArrayList of high scores
-	public void createHighScoreList() throws FileNotFoundException {
-		File scores = new File(SCORE_FILE);
-		Scanner fileScan = new Scanner(scores);
-		
-		while(fileScan.hasNext())
-			highScores.add(new Score(fileScan.next(), fileScan.nextLong()));
-		
-		fileScan.close();
-	}
-	
-	// Save high scores to file
-	public void saveScores() throws IOException {
-		highScores.add(new Score("Player" + (highScores.size() + 1), currentScore));
-		File scores = new File(SCORE_FILE);
-		PrintStream writer = new PrintStream(scores);
-		
-		for(int i = 0; i < highScores.size(); i++)
-			writer.println(highScores.get(i).toString());
-		
-		writer.close();
 	}
 	
 	// Creates a start screen so the game doesn't jump directly into gameplay
@@ -473,6 +481,60 @@ public class Display extends Canvas {
 		}
 	}
 	
+	// Creates the ending screen with the user's score and top 5 scores achieved
+	public void endScreen() {
+		while(true) {
+			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
+			g.setColor(Color.black);
+			g.fillRect(0, 0, getSize().width + 50, getSize().height + 50);
+
+			g.setColor(Color.white);
+			String score = "Final score: " + currentScore;
+			String over = "GAME OVER!";
+			String high = "HIGH SCORES";
+
+			g.drawString(over, (getSize().width - g.getFontMetrics().stringWidth(over)) / 2, (getSize().height / 2) - 25);		
+			g.drawString(score, (getSize().width - g.getFontMetrics().stringWidth(score)) / 2, getSize().height / 2);
+			g.drawString(high, (getSize().width - g.getFontMetrics().stringWidth(high)) / 2, (getSize().height / 2) + 50);
+			
+			// Display high scores
+			int scoresShown = 0;
+			Collections.sort(highScores);
+			while(highScores.size() > scoresShown && scoresShown < 5) {
+				String highScore = (1 + scoresShown) + " - " + highScores.get(scoresShown).getName() + ": " + highScores.get(scoresShown).getScore();
+				g.drawString(highScore, (getSize().width - g.getFontMetrics().stringWidth(highScore)) / 2, (getSize().height / 2) + (25 * (scoresShown + 3)));
+				scoresShown++;
+			}
+			
+			// Update view
+			g.dispose();
+			bS.show();
+		}
+	}
+	
+	// Creates the ArrayList of high scores
+	public void createHighScoreList() throws FileNotFoundException {
+		File scores = new File(SCORE_FILE);
+		Scanner fileScan = new Scanner(scores);
+		
+		while(fileScan.hasNext())
+			highScores.add(new Score(fileScan.next(), fileScan.nextLong()));
+		
+		fileScan.close();
+	}
+	
+	// Save high scores to file
+	public void saveScores() throws IOException {
+		highScores.add(new Score("Player" + (highScores.size() + 1), currentScore));
+		File scores = new File(SCORE_FILE);
+		PrintStream writer = new PrintStream(scores);
+		
+		for(int i = 0; i < highScores.size(); i++)
+			writer.println(highScores.get(i).toString());
+		
+		writer.close();
+	}
+	
 	// Alters left boolean when the left arrow key is pressed or let go
 	public void left(boolean newLeft) {
 		left = newLeft;
@@ -488,7 +550,8 @@ public class Display extends Canvas {
 		shoot = newShoot;
 	}
 	
-	public void esc(boolean newEsc) {
-		esc = newEsc;
+	// Alters esc boolean when the escape key is pressed
+	public void esc() {
+		esc = !esc;
 	}
 }

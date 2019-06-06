@@ -1,3 +1,10 @@
+/*
+ * Hassan Farooq, Andrew Balaschak
+ * 2018-2019 APCS P.5 Semester 2 Final
+ * 
+ * Player Class - creates a player object, extends Character
+ */
+
 package bugHunter;
 
 public class Player extends Character {

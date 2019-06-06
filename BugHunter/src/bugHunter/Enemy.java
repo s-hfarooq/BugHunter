@@ -1,3 +1,10 @@
+/*
+ * Hassan Farooq, Andrew Balaschak
+ * 2018-2019 APCS P.5 Semester 2 Final
+ * 
+ * Enemy Class - creates an enemy object, extends Character
+ */
+
 package bugHunter;
 
 public class Enemy extends Character {

@@ -1,9 +1,19 @@
+/*
+ * Hassan Farooq, Andrew Balaschak
+ * 2018-2019 APCS P.5 Semester 2 Final
+ * 
+ * Score Class - creates score objects to save/use player scores
+ */
+
 package bugHunter;
 
 public class Score implements Comparable {
-	public String name;
-	public long score;
 	
+	// Instance variables
+	private String name;					// Stores the name of the player
+	private long score;						// Stores the score of the player
+	
+	// Constructor
 	public Score(String name, long score) {
 		this.name = name;
 		this.score = score;
