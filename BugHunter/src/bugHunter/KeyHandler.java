@@ -17,6 +17,7 @@ public class KeyHandler extends KeyAdapter {
 	private final int RIGHT = KeyEvent.VK_RIGHT;		// Right key ID
 	private final int SHOOT = KeyEvent.VK_SPACE;		// Shoot key ID
 	private final int ESC = KeyEvent.VK_ESCAPE;			// Escape key ID
+	private final int ENTER = KeyEvent.VK_ENTER;		// Enter key ID
 	
 	// Instance variables
 	private Display disp;								// Display object that creates the window
@@ -39,6 +40,8 @@ public class KeyHandler extends KeyAdapter {
 			disp.shoot(true);
 		else if(key == ESC)
 			disp.esc();
+		else if(key == ENTER)
+			disp.enter();
 	}
 	
 	// Runs when a key is released

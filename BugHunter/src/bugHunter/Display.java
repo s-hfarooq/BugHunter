@@ -35,6 +35,7 @@ public class Display extends Canvas {
 	private final String PLAYER_LEFT = "src/bugHunter/ShipL.png";		// File location for the player image leaning left
 	private final String ICON_IMAGE = "src/bugHunter/Ship.png";			// File location for icon image
 	private final String POWERUP_IMAGE = "src/bugHunter/PowerUp.png";	// File location for power up image
+	private final String HEALTHUP_IMAGE = "src/bugHunter/HealthUp.png"; // File location for the health increase power up
 	private final String SCORE_FILE = "src/bugHunter/HighScores.txt";	// File location for high scores
 	private final int SCALE = 70;										// Scale factor for window
 	private final double POWERUP_CHANCE = 0.0001;						// Chance per frame that a power up will appear
@@ -44,6 +45,7 @@ public class Display extends Canvas {
 	private boolean right;												// True if right arrow key currently pressed, false otherwise
 	private boolean shoot;												// True if space bar currently pressed, false otherwise
 	private boolean esc;												// Toggles when escape key pressed
+	private boolean enter;												// Toggles when enter key pressed
 	private boolean runGame;											// True if the player is alive and is in the main game
 	private long currentScore;											// Current score for the player (+100 for every enemy killed, +500 for every level cleared)
 	private int level;													// Current level (increases whenever all enemies in the current stage die)
@@ -69,6 +71,7 @@ public class Display extends Canvas {
 		right = false;
 		shoot = false;
 		esc = false;
+		enter = false;
 		runGame = true;
 		
 		currentScore = 0;
@@ -140,7 +143,6 @@ public class Display extends Canvas {
 		CharacterImg playerRight = new CharacterImg(toolkit.getImage(PLAYER_RIGHT));
 		CharacterImg playerLeft = new CharacterImg(toolkit.getImage(PLAYER_LEFT));
 		CharacterImg playerCenter = new CharacterImg(toolkit.getImage(PLAYER_IMAGE));
-		CharacterImg powerupImg = new CharacterImg(toolkit.getImage(POWERUP_IMAGE));
 		
 		startScreen();
 		
@@ -192,7 +194,7 @@ public class Display extends Canvas {
 			}
 			
 			// Create power up
-			powerUp(powerupImg, g);
+			powerUp(toolkit, g);
 			
 			// Create enemy bullets and check for collisions with the player
 			enemyShoot(bulletImg, g);
@@ -379,12 +381,20 @@ public class Display extends Canvas {
 	/*
 	 * Creates a powerup randomly - based on the value of POWERUP_CHANCE
 	 * Draws powerups if any exist
-	 * @param powerupImg - this is the image for the powerup, passed in so multiple don't have to be created 
+	 * @param toolkit - needed to get info about the display
 	 * @param g - the Graphics2D object that is displaying everything
 	 */
-	public void powerUp(CharacterImg powerupImg, Graphics2D g) {
+	public void powerUp(Toolkit toolkit, Graphics2D g) {
 		double randPowerUp = Math.random();
 		if(randPowerUp < POWERUP_CHANCE) {
+			double randType = Math.random();
+			
+			CharacterImg powerupImg;
+			if(randType < 0.5)
+				powerupImg = new CharacterImg(toolkit.getImage(POWERUP_IMAGE));
+			else
+				powerupImg = new CharacterImg(toolkit.getImage(HEALTHUP_IMAGE));
+
 			powerups.add(new Powerup(this, powerupImg, (int)(Math.random() * (getSize().width - 50)) + 50, -50, (int)(Math.random() * 2) + 1));
 			powerups.get(powerups.size() - 1).changeVelocity(0, 1);
 		}
@@ -454,7 +464,7 @@ public class Display extends Canvas {
 	
 	// Creates a start screen so the game doesn't jump directly into gameplay
 	public void startScreen() {
-		while(!esc) {
+		while(!enter) {
 			// Create graphics for start screen
 			Graphics2D g = (Graphics2D) bS.getDrawGraphics();
 			
@@ -463,7 +473,7 @@ public class Display extends Canvas {
 			g.setColor(Color.white);
 			
 			String authors = "Hassan Farooq, Andrew Balacshak";
-			String start = "PRESS ESC TO START";
+			String start = "PRESS ENTER TO START";
 			g.drawString(NAME, (getSize().width - g.getFontMetrics().stringWidth(NAME)) / 2, 125);
 			g.drawString(authors, (getSize().width - g.getFontMetrics().stringWidth(authors)) / 2, 175);
 			g.drawString(start, (getSize().width - g.getFontMetrics().stringWidth(start)) / 2, (getSize().height / 2) + 50);
@@ -553,5 +563,10 @@ public class Display extends Canvas {
 	// Alters esc boolean when the escape key is pressed
 	public void esc() {
 		esc = !esc;
+	}
+	
+	// Alters enter boolean when the enter key is pressed
+	public void enter() {
+		enter = !enter;
 	}
 }
